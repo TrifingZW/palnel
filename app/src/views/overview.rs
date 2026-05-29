@@ -12,7 +12,19 @@ fn format_gb(bytes: u64) -> String {
     format!("{:.1} GB", bytes as f64 / 1_073_741_824.0)
 }
 
-/// 概览视图，展示系统信息栏、CPU 与内存状态。
+fn format_rate(bytes: u64) -> String {
+    if bytes >= 1_073_741_824 {
+        format!("{:.1} GB", bytes as f64 / 1_073_741_824.0)
+    } else if bytes >= 1_048_576 {
+        format!("{:.1} MB", bytes as f64 / 1_048_576.0)
+    } else if bytes >= 1_024 {
+        format!("{:.1} KB", bytes as f64 / 1_024.0)
+    } else {
+        format!("{} B", bytes)
+    }
+}
+
+/// 概览视图，展示系统信息、CPU、内存、网络与磁盘状态。
 #[component]
 pub fn OverviewView() -> impl IntoView {
     let metrics = SystemMetrics {
@@ -28,6 +40,37 @@ pub fn OverviewView() -> impl IntoView {
         kernel_version: "NT 10.0.22621".into(),
         hostname: "DESKTOP-A1B2C3D".into(),
         collected_at: "14:30:00".into(),
+        networks: vec![
+            common::sysinfo::NetworkInfo {
+                name: "eth0".into(),
+                rx_bytes: 45_823_456_789,
+                tx_bytes: 12_345_678_901,
+            },
+            common::sysinfo::NetworkInfo {
+                name: "eth1".into(),
+                rx_bytes: 8_456_789_012,
+                tx_bytes: 3_210_987_654,
+            },
+            common::sysinfo::NetworkInfo {
+                name: "wlan0".into(),
+                rx_bytes: 234_567_890_123,
+                tx_bytes: 98_765_432_109,
+            },
+        ],
+        disks: vec![
+            common::sysinfo::DiskInfo {
+                name: "C:".into(),
+                mount_point: "/mnt/c".into(),
+                total: 512_110_190_592,
+                used: 287_000_000_000,
+            },
+            common::sysinfo::DiskInfo {
+                name: "D:".into(),
+                mount_point: "/mnt/d".into(),
+                total: 1_099_511_627_776,
+                used: 654_000_000_000,
+            },
+        ],
         ..Default::default()
     };
 
@@ -118,6 +161,75 @@ pub fn OverviewView() -> impl IntoView {
                     </div>
                 </Card>
             </div>
+
+            <Card class={ "network-card".to_string() }>
+                {metrics.networks.iter().enumerate().map(|(i, net)| {
+                    let variant = match i % 3 {
+                        0 => "info",
+                        1 => "teal",
+                        _ => "success",
+                    };
+                    let class = format!("network-card__iface network-card__iface--{}", variant);
+                    view! {
+                        <div class=class>
+                            <span class="network-card__name">{net.name.clone()}</span>
+                            <div class="network-card__traffic">
+                                <Tag text=format_rate(net.rx_bytes) size=TagSize::Small color=TagColor::Success
+                                    icon=view! {
+                                        <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 12L3 7h3V2h4v5h3l-5 5z"/></svg>
+                                    }.into_any()
+                                />
+                                <Tag text=format_rate(net.tx_bytes) size=TagSize::Small color=TagColor::Accent
+                                    icon=view! {
+                                        <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 4l5 5h-3v5H6V9H3l5-5z"/></svg>
+                                    }.into_any()
+                                />
+                            </div>
+                        </div>
+                    }
+                }).collect_view()}
+            </Card>
+
+            <Card class={ "disk-card".to_string() }>
+                {metrics.disks.iter().enumerate().map(|(i, disk)| {
+                    let usage = if disk.total > 0 {
+                        disk.used as f32 / disk.total as f32
+                    } else {
+                        0.0
+                    };
+                    let (usage_signal, _) = signal(usage);
+                    let variant = match i % 4 {
+                        0 => "info",
+                        1 => "teal",
+                        2 => "success",
+                        _ => "warning",
+                    };
+                    let item_class = format!("disk-card__item disk-card__item--{}", variant);
+                    let bar_class = format!("disk-card__bar disk-card__bar--{}", variant);
+                    view! {
+                        <div class=item_class>
+                            <span class=bar_class></span>
+                            <div class="disk-card__body">
+                                <div class="disk-card__header">
+                                    <span class="disk-card__name">
+                                        <span class="disk-card__icon">
+                                            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 3a1 1 0 0 1 1-1h3.586a1 1 0 0 1 .707.293l1.414 1.414A1 1 0 0 0 9.414 4H13a1 1 0 0 1 1 1v1H2V3zm0 3h12v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6z"/></svg>
+                                        </span>
+                                        {disk.name.clone()}
+                                    </span>
+                                    <span class="disk-card__pct">{format!("{:.0}%", usage * 100.0)}</span>
+                                </div>
+                                <BarProgress value=usage_signal fill_color="var(--color-accent)".to_string() />
+                                <div class="disk-card__stat">
+                                    <span>{format_gb(disk.used)}</span>
+                                    <span>{disk.mount_point.clone()}</span>
+                                    <span>{format_gb(disk.total)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }).collect_view()}
+            </Card>
         </div>
     }
 }

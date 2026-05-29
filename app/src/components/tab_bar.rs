@@ -3,7 +3,8 @@ use leptos::prelude::*;
 /// 面板顶部导航标签页。
 #[derive(Clone, Copy, PartialEq)]
 pub enum PanelTab {
-    Overview,
+    PalWorld,
+    Dashboard,
     Saves,
     Map,
     Settings,
@@ -12,7 +13,8 @@ pub enum PanelTab {
 impl PanelTab {
     pub fn label(&self) -> &'static str {
         match self {
-            PanelTab::Overview => "概览",
+            PanelTab::PalWorld => "Pal",
+            PanelTab::Dashboard => "看板",
             PanelTab::Saves => "存档",
             PanelTab::Map => "地图",
             PanelTab::Settings => "设置",
@@ -26,7 +28,13 @@ pub fn TabBar(
     active_tab: ReadSignal<PanelTab>,
     #[prop(into)] on_change: Callback<PanelTab>,
 ) -> impl IntoView {
-    let tabs = [PanelTab::Overview, PanelTab::Saves, PanelTab::Map, PanelTab::Settings];
+    let tabs = [
+        PanelTab::PalWorld,
+        PanelTab::Dashboard,
+        PanelTab::Saves,
+        PanelTab::Map,
+        PanelTab::Settings,
+    ];
 
     view! {
         <nav class="tab-bar" role="tablist">

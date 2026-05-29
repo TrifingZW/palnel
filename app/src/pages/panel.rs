@@ -7,13 +7,16 @@ use crate::{
         tab_bar::{PanelTab, TabBar},
         tag::{Tag, TagColor, TagSize},
     },
-    views::{map::MapView, overview::OverviewView, saves::SaveView, settings::SettingsView},
+    views::{
+        dashboard::DashboardView, map::MapView, palworld::PalWorldView, saves::SaveView,
+        settings::SettingsView,
+    },
 };
 
 /// 主面板，组合导航、状态栏、操作按钮及内容区。
 #[component]
 pub fn Panel() -> impl IntoView {
-    let (active_tab, set_active_tab) = signal(PanelTab::Overview);
+    let (active_tab, set_active_tab) = signal(PanelTab::PalWorld);
     let (running, _set_running) = signal(true);
     let (pid, _set_pid) = signal(12345u32);
 
@@ -82,7 +85,8 @@ pub fn Panel() -> impl IntoView {
             <hr class="panel__divider" />
             <main class="panel__content">
                 {move || match active_tab.get() {
-                    PanelTab::Overview => view! { <OverviewView /> }.into_any(),
+                    PanelTab::PalWorld => view! { <PalWorldView /> }.into_any(),
+                    PanelTab::Dashboard => view! { <DashboardView /> }.into_any(),
                     PanelTab::Saves => view! { <SaveView /> }.into_any(),
                     PanelTab::Map => view! { <MapView /> }.into_any(),
                     PanelTab::Settings => view! { <SettingsView /> }.into_any(),

@@ -1,4 +1,5 @@
+pub mod dashboard;
 pub mod map;
-pub mod overview;
+pub mod palworld;
 pub mod saves;
 pub mod settings;

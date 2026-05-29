@@ -24,9 +24,9 @@ fn format_rate(bytes: u64) -> String {
     }
 }
 
-/// 概览视图，展示系统信息、CPU、内存、网络与磁盘状态。
+/// 仪表盘视图，展示系统信息、CPU、内存、网络与磁盘状态。
 #[component]
-pub fn OverviewView() -> impl IntoView {
+pub fn DashboardView() -> impl IntoView {
     let metrics = SystemMetrics {
         cpu_usage: 0.23,
         cpu_cores: 16,
@@ -117,7 +117,7 @@ pub fn OverviewView() -> impl IntoView {
     }.into_any();
 
     view! {
-        <div class="overview">
+        <div class="dashboard">
             <Card variant=CardVariant::Banner class={ "sysbar".to_string() }>
                 <Tag text=metrics.os_name.clone() size=TagSize::Small color=TagColor::Accent icon=os_icon />
                 <Tag text=metrics.os_version.clone() size=TagSize::Small color=TagColor::Purple icon=ver_icon />
@@ -126,7 +126,7 @@ pub fn OverviewView() -> impl IntoView {
                 <Tag text=metrics.collected_at.clone() size=TagSize::Small color=TagColor::Warning icon=time_icon />
             </Card>
 
-            <div class="overview__grid">
+            <div class="dashboard__grid">
                 <Card class={ "cpu-card".to_string() }>
                     <CircularProgress value=cpu_usage size=120 stroke_width=10 />
                     <Tag

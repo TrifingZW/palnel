@@ -5,7 +5,7 @@ use crate::{
         avatar::AvatarArea,
         elevated_button::{ButtonVariant, ElevatedButton},
         tab_bar::{PanelTab, TabBar},
-        tag::Tag,
+        tag::{Tag, TagColor, TagSize},
     },
     views::{map::MapView, overview::OverviewView, saves::SaveView, settings::SettingsView},
 };
@@ -14,6 +14,7 @@ use crate::{
 pub fn Panel() -> impl IntoView {
     let (active_tab, set_active_tab) = signal(PanelTab::Overview);
     let (running, _set_running) = signal(true);
+    let (pid, _set_pid) = signal(12345u32);
 
     let start_icon = view! {
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -62,6 +63,11 @@ pub fn Panel() -> impl IntoView {
                                         "已停止"
                                     </span>
                                 }.into_any()
+                            }
+                        }}
+                        {move || {
+                            view! {
+                                <Tag text=format!("PID: {}", pid.get()) size=TagSize::Large color=TagColor::Info />
                             }
                         }}
                     </div>

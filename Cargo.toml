@@ -1,0 +1,157 @@
+[workspace]
+resolver = "3"
+members = ["common", "app", "frontend", "server", "rpc", "palguard"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["TrifingZW <email@gmail.com>"]
+edition = "2024"
+
+[workspace.dependencies]
+# Leptos 核心
+leptos = { version = "0.8.19" }
+leptos_meta = { version = "0.8.6" }
+leptos_router = { version = "0.8.13" }
+leptos_axum = { version = "0.8.9" }
+leptos-use = "0.18.3"
+server_fn = { version = "0.8.12", features = ["multipart"] }
+
+# Axum 和服务器
+axum = { version = "0.8.9", features = ["macros"] }
+axum-server = { version = "0.8.0", features = ["tls-openssl"] }
+axum-extra = { version = "0.12.6", features = ["typed-header", "cookie"] }
+
+# 数据库
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "postgres", "sqlite", "migrate"] }
+url = "2.5.8"
+
+# http 基础设施和工具
+http = "1.4.1"
+tower = { version = "0.5.3", features = ["full"] }
+tower-http = { version = "0.6.11", features = ["full"] }
+
+# 异步运行时
+tokio = { version = "1.52.3", features = ["full"] }
+tokio-stream = { version = "0.1.18", features = ["sync"] }
+futures = "0.3.32"
+
+# 现代化的日志与追踪（生产就绪）
+tracing = "0.1.44"
+tracing-appender = "0.2.5"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt", "std", "time", "local-time"] }
+
+# log
+log = "0.4.30"
+console_log = "1.0.0"
+console_error_panic_hook = "0.1.7"
+
+# 标准 Web API 的原生 Rust 绑定
+wasm-bindgen = "0.2.122"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = { version = "0.3.99", features = ["HtmlInputElement", "FileList", "File", "FormData", "EventTarget", "FileReader", "Blob", "Url", "EventSource", "MessageEvent"] }
+
+# JWT
+jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
+
+# 序列化
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+reqwest = { version = "0.12", features = ["json"] }
+toml = "1.1.2"
+
+# Error
+anyhow = "1.0.102"
+thiserror = "2.0.18"
+
+# 其他工具
+time = { version = "0.3.47", features = ["macros", "local-offset", "formatting"] }
+uuid = { version = "1.23.1", features = ["serde", "v4", "js"] }
+sysinfo = "0.39.2"
+zip = "8.6.0"
+walkdir = "2.5.0"
+
+[profile.release]
+opt-level = "z"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = "symbols"
+debug = false
+split-debuginfo = "off"
+debug-assertions = false
+overflow-checks = false
+incremental = false
+rpath = false
+
+
+# See https://github.com/leptos-rs/cargo-leptos for documentation of all the parameters.
+
+# A leptos project defines which workspace members
+# that are used together frontend (lib) & server (bin)
+[[workspace.metadata.leptos]]
+# this name is used for the wasm, js and css file names
+name = "palnel"
+
+# the package in the workspace that contains the server binary (binary crate)
+bin-package = "server"
+
+# the package in the workspace that contains the frontend wasm binary (library crate)
+lib-package = "frontend"
+
+# The site root folder is where cargo-leptos generate all output. WARNING: all content of this folder will be erased on a rebuild. Use it in your server setup.
+site-root = "target/site"
+
+# The site-root relative folder where all compiled output (JS, WASM and CSS) is written
+# Defaults to pkg
+site-pkg-dir = "pkg"
+
+# [Optional] The source CSS file. If it ends with .sass or .scss then it will be compiled by dart-sass into CSS. The CSS is optimized by Lightning CSS before being written to <site-root>/<site-pkg>/app.css
+style-file = "style/main.scss"
+
+# Assets source dir. All files found here will be copied and synchronized to site-root.
+# The assets-dir cannot have a sub directory with the same name/path as site-pkg-dir.
+#
+# Optional. Env: LEPTOS_ASSETS_DIR.
+assets-dir = "public"
+
+# The IP and port (ex: 127.0.0.1:3000) where the server serves the content. Use it in your server setup.
+site-addr = "127.0.0.1:3000"
+
+# The port to use for automatic reload monitoring
+reload-port = 3001
+
+# [Optional] Command to use when running end2end tests. It will run in the end2end dir.
+#   [Windows] for non-WSL use "npx.cmd playwright test"
+#   This binary name can be checked in Powershell with Get-Command npx
+end2end-cmd = "npx playwright test"
+end2end-dir = "end2end"
+
+#  The browserlist query used for optimizing the CSS.
+browserquery = "defaults"
+
+# Set by cargo-leptos watch when building with that tool. Controls whether autoreload JS will be included in the head
+watch = false
+
+# The environment Leptos will run in, usually either "DEV" or "PROD"
+env = "DEV"
+
+# The features to use when compiling the bin target
+#
+# Optional. Can be over-ridden with the command line parameter --bin-features
+bin-features = []
+
+# If the --no-default-features flag should be used when compiling the bin target
+#
+# Optional. Defaults to false.
+bin-default-features = false
+
+# The features to use when compiling the lib target
+#
+# Optional. Can be over-ridden with the command line parameter --lib-features
+lib-features = []
+
+# If the --no-default-features flag should be used when compiling the lib target
+#
+# Optional. Defaults to false.
+lib-default-features = false

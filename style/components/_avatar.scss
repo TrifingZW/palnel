@@ -1,0 +1,38 @@
+.avatar-area {
+    position: relative;
+
+    &__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 4px;
+        border: var(--border-width) solid var(--color-danger);
+        border-radius: 999px;
+        background: var(--color-danger-light);
+        cursor: pointer;
+        transition: transform var(--transition-fast);
+
+        &:active {
+            transform: scale(0.96);
+        }
+    }
+
+    &__circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--color-accent);
+        color: var(--color-surface);
+        flex-shrink: 0;
+    }
+
+    &__label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--color-danger);
+        padding-right: 10px;
+    }
+}

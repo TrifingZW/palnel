@@ -1,0 +1,53 @@
+[package]
+name = "server"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+app = { path = "../app", default-features = false, features = ["ssr"] }
+common = { path = "../common", features = ["ssr"] }
+palguard = { path = "../palguard" }
+
+# Leptos 核心
+leptos = { workspace = true, features = ["ssr"] }
+leptos_axum.workspace = true
+
+# Axum 和服务器
+axum.workspace = true
+axum-server.workspace = true
+axum-extra.workspace = true
+
+# http 基础设施和工具
+tower.workspace = true
+tower-http.workspace = true
+
+# 异步运行时
+tokio.workspace = true
+tokio-stream.workspace = true
+futures.workspace = true
+
+# 数据库
+sqlx.workspace = true
+
+# 现代化的日志与追踪
+tracing.workspace = true
+tracing-subscriber.workspace = true
+tracing-appender.workspace = true
+
+# JWT
+jsonwebtoken.workspace = true
+
+# 序列化
+serde.workspace = true
+serde_json.workspace = true
+
+# Error
+anyhow = { workspace = true }
+
+# 其他工具
+time.workspace = true
+uuid.workspace = true
+sysinfo.workspace = true
+reqwest.workspace = true
+zip.workspace = true

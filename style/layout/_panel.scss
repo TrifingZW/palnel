@@ -1,0 +1,56 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 16px 20px;
+
+    &__header {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    &__header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    &__title-group {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &__title {
+        font-family:
+            "Playfair Display", "Noto Serif SC", "Noto Serif", Georgia,
+            "Times New Roman", serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--color-text-primary);
+    }
+
+    &__divider {
+        border: none;
+        height: var(--border-width);
+        background-color: var(--color-divider);
+        margin: 12px 0;
+    }
+
+    &__status {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    &__content {
+        flex: 1;
+    }
+}

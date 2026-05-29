@@ -1,0 +1,12 @@
+[package]
+name = "palguard"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+tokio = { version = "1.52", default-features = false, features = ["process", "sync", "io-util", "time"] }
+serde = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+time = { workspace = true }

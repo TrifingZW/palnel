@@ -1,0 +1,85 @@
+use leptos::prelude::*;
+
+use crate::components::avatar::AvatarArea;
+use crate::components::elevated_button::{ButtonVariant, ElevatedButton};
+use crate::components::tab_bar::{PanelTab, TabBar};
+use crate::components::tag::Tag;
+use crate::views::map::MapView;
+use crate::views::overview::OverviewView;
+use crate::views::saves::SaveView;
+use crate::views::settings::SettingsView;
+
+#[component]
+pub fn Panel() -> impl IntoView {
+    let (active_tab, set_active_tab) = signal(PanelTab::Overview);
+    let (running, _set_running) = signal(true);
+
+    let start_icon = view! {
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 2.5v11l9-5.5-9-5.5z"/>
+        </svg>
+    }.into_any();
+
+    let stop_icon = view! {
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="10" height="10" rx="1.5"/>
+        </svg>
+    }.into_any();
+
+    let restart_icon = view! {
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2 8a6 6 0 0 1 10.47-4M14 8a6 6 0 0 1-10.47 4"/>
+            <path d="M14 2v4h-4M2 14v-4h4"/>
+        </svg>
+    }.into_any();
+
+    view! {
+        <div class="panel">
+            <header class="panel__header">
+                <div class="panel__header-row">
+                    <div class="panel__title-group">
+                        <h1 class="panel__title">"Palnel"</h1>
+                        <Tag text="v0.1.0"/>
+                    </div>
+                    <AvatarArea />
+                </div>
+                <div class="panel__header-row">
+                    <TabBar active_tab=active_tab on_change=move |tab| set_active_tab.set(tab) />
+                    <div class="panel__status">
+                        {move || {
+                            if running.get() {
+                                view! {
+                                    <span class="tag tag--lg tag--success">
+                                        <span class="status-dot status-dot--pulse"></span>
+                                        "运行中"
+                                    </span>
+                                }.into_any()
+                            } else {
+                                view! {
+                                    <span class="tag tag--lg tag--danger">
+                                        <span class="status-dot"></span>
+                                        "已停止"
+                                    </span>
+                                }.into_any()
+                            }
+                        }}
+                    </div>
+                    <div class="panel__actions">
+                        <ElevatedButton label="启动" variant=ButtonVariant::Start icon=start_icon on_click=move |_| {} />
+                        <ElevatedButton label="关闭" variant=ButtonVariant::Stop icon=stop_icon on_click=move |_| {} />
+                        <ElevatedButton label="重启" variant=ButtonVariant::Restart icon=restart_icon on_click=move |_| {} />
+                    </div>
+                </div>
+            </header>
+            <hr class="panel__divider" />
+            <main class="panel__content">
+                {move || match active_tab.get() {
+                    PanelTab::Overview => view! { <OverviewView /> }.into_any(),
+                    PanelTab::Saves => view! { <SaveView /> }.into_any(),
+                    PanelTab::Map => view! { <MapView /> }.into_any(),
+                    PanelTab::Settings => view! { <SettingsView /> }.into_any(),
+                }}
+            </main>
+        </div>
+    }
+}

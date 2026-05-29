@@ -10,4 +10,11 @@
         flex-direction: column;
         height: 100%;
     }
+
+    &--banner {
+        background: var(--color-accent-bg);
+        border: none;
+        border-radius: 0;
+        padding: 10px 14px;
+    }
 }

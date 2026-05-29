@@ -1,13 +1,14 @@
 use leptos::prelude::*;
 
-use crate::components::avatar::AvatarArea;
-use crate::components::elevated_button::{ButtonVariant, ElevatedButton};
-use crate::components::tab_bar::{PanelTab, TabBar};
-use crate::components::tag::Tag;
-use crate::views::map::MapView;
-use crate::views::overview::OverviewView;
-use crate::views::saves::SaveView;
-use crate::views::settings::SettingsView;
+use crate::{
+    components::{
+        avatar::AvatarArea,
+        elevated_button::{ButtonVariant, ElevatedButton},
+        tab_bar::{PanelTab, TabBar},
+        tag::Tag,
+    },
+    views::{map::MapView, overview::OverviewView, saves::SaveView, settings::SettingsView},
+};
 
 #[component]
 pub fn Panel() -> impl IntoView {

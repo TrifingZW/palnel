@@ -6,8 +6,10 @@ use common::{
 };
 use tokio::time::sleep;
 
-use crate::pal_rest::{fetch_info, fetch_metrics, fetch_players};
-use crate::sys_poller::collect_system_metrics;
+use crate::{
+    pal_rest::{fetch_info, fetch_metrics, fetch_players},
+    sys_poller::collect_system_metrics,
+};
 
 /// 启动 Palworld 服务器状态监控后台任务
 pub fn start_palworld_fetch(app_state: &AppState) {

@@ -24,8 +24,11 @@ use tokio::sync::broadcast;
 
 #[cfg(not(debug_assertions))]
 use crate::server::{https, redirect};
-use crate::{fetch::start_palguard_process_fetch, fetch::start_palworld_fetch, server::http};
-use crate::{fetch::start_system_metrics_fetch, routes::WitiumRoutes};
+use crate::{
+    fetch::{start_palguard_process_fetch, start_palworld_fetch, start_system_metrics_fetch},
+    routes::WitiumRoutes,
+    server::http,
+};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

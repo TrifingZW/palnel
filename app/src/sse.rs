@@ -1,5 +1,7 @@
-use common::pal::{PalInfo, PalMetrics, PalPlayerList, PalguardProcessStatus};
-use common::sysinfo::SystemMetrics;
+use common::{
+    pal::{PalInfo, PalMetrics, PalPlayerList, PalguardProcessStatus},
+    sysinfo::SystemMetrics,
+};
 use leptos::prelude::*;
 use wasm_bindgen::{JsCast, closure::Closure};
 use web_sys::{EventSource, MessageEvent};

@@ -1,5 +1,6 @@
-use common::sysinfo::{DiskInfo, NetworkInfo, SystemMetrics};
 use std::time::Duration;
+
+use common::sysinfo::{DiskInfo, NetworkInfo, SystemMetrics};
 use sysinfo::{Disks, Networks, System};
 
 /// 执行 sysinfo 采集，返回聚合快照（由后台轮询任务调用）。

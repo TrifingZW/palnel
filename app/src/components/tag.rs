@@ -6,6 +6,9 @@ pub enum TagColor {
     Warning,
     Danger,
     Info,
+    Accent,
+    Purple,
+    Teal,
 }
 
 impl TagColor {
@@ -15,6 +18,9 @@ impl TagColor {
             TagColor::Warning => "tag--warning",
             TagColor::Danger => "tag--danger",
             TagColor::Info => "tag--info",
+            TagColor::Accent => "tag--accent",
+            TagColor::Purple => "tag--purple",
+            TagColor::Teal => "tag--teal",
         }
     }
 }
@@ -41,10 +47,14 @@ pub fn Tag(
     #[prop(into)] text: String,
     #[prop(default = TagSize::Medium)] size: TagSize,
     #[prop(default = TagColor::Warning)] color: TagColor,
+    #[prop(optional)] icon: Option<AnyView>,
 ) -> impl IntoView {
     let class = format!("tag {} {}", size.class(), color.class());
 
     view! {
-        <span class=class>{text}</span>
+        <span class=class>
+            {icon}
+            {text}
+        </span>
     }
 }

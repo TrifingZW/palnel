@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+/// 下拉菜单，展示认证信息与登录/登出操作。
 #[component]
 pub fn Menu(
     is_authenticated: ReadSignal<bool>,

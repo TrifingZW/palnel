@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+/// 标签颜色变体。
 #[derive(Clone, Copy, PartialEq)]
 pub enum TagColor {
     Success,
@@ -25,6 +26,7 @@ impl TagColor {
     }
 }
 
+/// 标签尺寸变体。
 #[derive(Clone, Copy, PartialEq)]
 pub enum TagSize {
     Small,
@@ -42,6 +44,7 @@ impl TagSize {
     }
 }
 
+/// 内联标签，支持图标、多色、多尺寸。
 #[component]
 pub fn Tag(
     #[prop(into)] text: String,

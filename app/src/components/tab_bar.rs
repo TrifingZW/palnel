@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+/// 面板顶部导航标签页。
 #[derive(Clone, Copy, PartialEq)]
 pub enum PanelTab {
     Overview,
@@ -19,6 +20,7 @@ impl PanelTab {
     }
 }
 
+/// 导航标签栏，高亮当前激活标签。
 #[component]
 pub fn TabBar(
     active_tab: ReadSignal<PanelTab>,

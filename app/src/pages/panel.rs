@@ -10,6 +10,7 @@ use crate::{
     views::{map::MapView, overview::OverviewView, saves::SaveView, settings::SettingsView},
 };
 
+/// 主面板，组合导航、状态栏、操作按钮及内容区。
 #[component]
 pub fn Panel() -> impl IntoView {
     let (active_tab, set_active_tab) = signal(PanelTab::Overview);

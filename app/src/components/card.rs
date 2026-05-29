@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+/// 卡片视觉变体。
 #[derive(Clone, Copy, PartialEq)]
 pub enum CardVariant {
     Default,

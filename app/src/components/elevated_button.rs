@@ -1,5 +1,6 @@
 use leptos::prelude::*;
 
+/// 按钮颜色变体。
 #[derive(Clone, Copy, PartialEq)]
 pub enum ButtonVariant {
     Success,
@@ -17,6 +18,7 @@ impl ButtonVariant {
     }
 }
 
+/// 按钮尺寸变体。
 #[derive(Clone, Copy, PartialEq)]
 pub enum ButtonSize {
     Small,
@@ -34,6 +36,7 @@ impl ButtonSize {
     }
 }
 
+/// 悬浮按钮，支持图标、变体色、三种尺寸。
 #[component]
 pub fn ElevatedButton(
     #[prop(into)] label: String,

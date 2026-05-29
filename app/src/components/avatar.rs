@@ -2,6 +2,7 @@ use leptos::prelude::*;
 
 use crate::components::menu::Menu;
 
+/// 头像区域，含认证状态切换与下拉菜单。
 #[component]
 pub fn AvatarArea() -> impl IntoView {
     let (show_menu, set_show_menu) = signal(false);

@@ -12,6 +12,7 @@ use leptos_router::{
 
 use crate::pages::panel::Panel;
 
+/// 应用 HTML shell，注入全局资源与元数据。
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
         <!DOCTYPE html>
@@ -33,6 +34,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
     }
 }
 
+/// 应用根组件，配置路由、样式与元数据。
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();

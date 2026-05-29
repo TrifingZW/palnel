@@ -3,7 +3,7 @@ use leptos::prelude::*;
 use crate::{
     components::{
         avatar::AvatarArea,
-        elevated_button::{ButtonVariant, ElevatedButton},
+        elevated_button::{ButtonSize, ButtonVariant, ElevatedButton},
         tab_bar::{PanelTab, TabBar},
         tag::{Tag, TagColor, TagSize},
     },
@@ -72,9 +72,9 @@ pub fn Panel() -> impl IntoView {
                         }}
                     </div>
                     <div class="panel__actions">
-                        <ElevatedButton label="启动" variant=ButtonVariant::Start icon=start_icon on_click=move |_| {} />
-                        <ElevatedButton label="关闭" variant=ButtonVariant::Stop icon=stop_icon on_click=move |_| {} />
-                        <ElevatedButton label="重启" variant=ButtonVariant::Restart icon=restart_icon on_click=move |_| {} />
+                        <ElevatedButton label="启动" variant=ButtonVariant::Success size=ButtonSize::Large icon=start_icon on_click=move |_| {} />
+                        <ElevatedButton label="关闭" variant=ButtonVariant::Danger size=ButtonSize::Large icon=stop_icon on_click=move |_| {} />
+                        <ElevatedButton label="重启" variant=ButtonVariant::Accent size=ButtonSize::Large icon=restart_icon on_click=move |_| {} />
                     </div>
                 </div>
             </header>

@@ -5,6 +5,7 @@ pub enum TagColor {
     Success,
     Warning,
     Danger,
+    Info,
 }
 
 impl TagColor {
@@ -13,6 +14,7 @@ impl TagColor {
             TagColor::Success => "tag--success",
             TagColor::Warning => "tag--warning",
             TagColor::Danger => "tag--danger",
+            TagColor::Info => "tag--info",
         }
     }
 }

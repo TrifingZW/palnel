@@ -1,4 +1,5 @@
 pub mod avatar;
+pub mod card;
 pub mod elevated_button;
 pub mod menu;
 pub mod tab_bar;

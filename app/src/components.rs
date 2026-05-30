@@ -10,5 +10,6 @@ pub mod menu;
 pub mod mono_chip;
 pub mod pal_player_list;
 pub mod ping_badge;
+pub mod snackbar;
 pub mod tab_bar;
 pub mod tag;

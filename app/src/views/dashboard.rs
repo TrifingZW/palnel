@@ -119,11 +119,11 @@ pub fn DashboardView() -> impl IntoView {
     view! {
         <div class="dashboard">
             <Card variant=CardVariant::Banner class={ "sysbar".to_string() }>
-                <Tag text=metrics.os_name.clone() size=TagSize::Small color=TagColor::Accent icon=os_icon />
-                <Tag text=metrics.os_version.clone() size=TagSize::Small color=TagColor::Purple icon=ver_icon />
-                <Tag text=metrics.kernel_version.clone() size=TagSize::Small color=TagColor::Teal icon=krn_icon />
-                <Tag text=metrics.hostname.clone() size=TagSize::Small color=TagColor::Success icon=host_icon />
-                <Tag text=metrics.collected_at.clone() size=TagSize::Small color=TagColor::Warning icon=time_icon />
+                <Tag text=metrics.os_name.clone() size=TagSize::Medium color=TagColor::Accent icon=os_icon />
+                <Tag text=metrics.os_version.clone() size=TagSize::Medium color=TagColor::Purple icon=ver_icon />
+                <Tag text=metrics.kernel_version.clone() size=TagSize::Medium color=TagColor::Teal icon=krn_icon />
+                <Tag text=metrics.hostname.clone() size=TagSize::Medium color=TagColor::Success icon=host_icon />
+                <Tag text=metrics.collected_at.clone() size=TagSize::Medium color=TagColor::Warning icon=time_icon />
             </Card>
 
             <div class="dashboard__grid">

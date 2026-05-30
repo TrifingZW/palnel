@@ -1,0 +1,15 @@
+.snackbar-host {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1200;
+    padding-bottom: 24px;
+
+    > * {
+        pointer-events: auto;
+    }
+}

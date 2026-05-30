@@ -116,6 +116,10 @@
         justify-content: flex-end;
         gap: 10px;
         padding: 0 20px 20px;
+
+        &--stack {
+            flex-direction: column;
+        }
     }
 
     &__btn {
@@ -134,6 +138,11 @@
 
         &:active {
             transform: scale(0.96);
+        }
+
+        &--block {
+            width: 100%;
+            justify-content: center;
         }
     }
 
@@ -170,6 +179,15 @@
             opacity: 1;
         }
     }
+
+    &__spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: dialog-spin 600ms linear infinite;
+    }
 }
 
 @keyframes dialog-enter {
@@ -180,5 +198,11 @@
     to {
         opacity: 1;
         transform: scale(1);
+    }
+}
+
+@keyframes dialog-spin {
+    to {
+        transform: rotate(360deg);
     }
 }

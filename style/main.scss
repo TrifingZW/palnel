@@ -13,9 +13,11 @@
 @use "components/data_table";
 @use "components/dialog";
 @use "components/inline_stat";
+@use "components/login_dialog";
 @use "components/mono_chip";
 @use "components/ping_badge";
 @use "components/pal_player_list";
 @use "components/snackbar";
+@use "components/snackbar_host";
 @use "views/dashboard";
 @use "views/palworld";

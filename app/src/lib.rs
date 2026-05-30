@@ -10,7 +10,10 @@ use leptos_router::{
     path,
 };
 
-use crate::pages::panel::Panel;
+use crate::{
+    components::{snackbar_host::SnackbarHost, snackbar_state::SnackbarState},
+    pages::panel::Panel,
+};
 
 /// 应用 HTML shell，注入全局资源与元数据。
 pub fn shell(options: LeptosOptions) -> impl IntoView {
@@ -34,10 +37,11 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
     }
 }
 
-/// 应用根组件，配置路由、样式与元数据。
+/// 应用根组件，配置路由、样式、元数据及全局 Snackbar 通知系统。
 #[component]
 pub fn App() -> impl IntoView {
     provide_meta_context();
+    provide_context(SnackbarState::new());
 
     view! {
         <Stylesheet id="leptos" href="/pkg/palnel.css"/>
@@ -53,6 +57,8 @@ pub fn App() -> impl IntoView {
                 </Routes>
             </main>
         </Router>
+
+        <SnackbarHost />
     }
 }
 

@@ -1,36 +1,51 @@
 use leptos::prelude::*;
 
-/// 下拉菜单，展示认证信息与登录/登出操作。
+/// 通用下拉菜单容器，提供遮罩层、定位与进入动画。
+///
+/// `show` 信号控制显示/隐藏；点击遮罩关闭菜单并触发 `on_close`。
+/// 内容通过 `children` 自由组合，引用 `.menu__info`、`.menu__actions`
+/// 等 BEM 类名构建布局。
 #[component]
 pub fn Menu(
-    is_authenticated: ReadSignal<bool>,
-    #[prop(into)] on_toggle_auth: Callback<()>,
+    show: RwSignal<bool>,
+    children: Children,
+    #[prop(optional)] on_close: Option<Callback<()>>,
+) -> impl IntoView {
+    let dismiss = move |_| {
+        show.set(false);
+        if let Some(ref cb) = on_close {
+            cb.run(());
+        }
+    };
+
+    view! {
+        <div
+            class="menu-backdrop"
+            class:menu-backdrop--visible=move || show.get()
+            on:click=dismiss
+        ></div>
+        <div class="menu" class:menu--visible=move || show.get()>
+            {children()}
+        </div>
+    }
+}
+
+/// 菜单操作按钮，支持常规与危险两种色调。
+#[component]
+pub fn MenuAction(
+    #[prop(into)] label: String,
+    #[prop(into)] on_click: Callback<()>,
+    #[prop(default = false)] danger: bool,
+    #[prop(optional)] icon: Option<AnyView>,
 ) -> impl IntoView {
     view! {
-        <div class="menu__info">
-            <span class="menu__avatar" aria-hidden="true">
-                <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 20 20"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        d="M10 2L3 5v5c0 4.418 2.91 8.087 7 9 4.09-.913 7-4.582 7-9V5l-7-3z"
-                        fill="currentColor"
-                    />
-                </svg>
-            </span>
-            <span class="menu__name">
-                {move || if is_authenticated.get() { "Authenticated" } else { "Unauthenticated" }}
-            </span>
-            <span class="menu__ip">"127.0.0.1"</span>
-        </div>
-        <div class="menu__actions">
-            <button class="menu__action-btn" on:click=move |_| on_toggle_auth.run(())>
-                {move || if is_authenticated.get() { "Logout" } else { "Login" }}
-            </button>
-        </div>
+        <button
+            class="menu__action-btn"
+            class:menu__action-btn--danger=danger
+            on:click=move |_| on_click.run(())
+        >
+            {icon}
+            {label}
+        </button>
     }
 }

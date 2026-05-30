@@ -3,6 +3,7 @@ pub mod bar_progress;
 pub mod card;
 pub mod circular_progress;
 pub mod data_table;
+pub mod dialog;
 pub mod elevated_button;
 pub mod icon_button;
 pub mod inline_stat;

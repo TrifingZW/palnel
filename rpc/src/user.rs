@@ -1,6 +1,5 @@
 use leptos::prelude::*;
 
-// ========= 数据模型（来自 common）========
 pub use common::user::User;
 
 // 统一管理 SSR 端的依赖导入，保持跨文件架构一致性
@@ -8,10 +7,6 @@ pub use common::user::User;
 mod ssr_imports {
     pub use crate::extractors::auth_claims;
 }
-
-// ==========================================
-// Server Functions (RPC)
-// ==========================================
 
 /// 获取当前登录用户。未认证时返回 Ok(None)，避免 500。
 #[server(GetUser, "/api")]

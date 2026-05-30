@@ -16,11 +16,15 @@
     &__bar {
         fill: none;
         stroke: var(--color-accent);
-        transition: stroke-dashoffset 0.5s ease;
+        transition: stroke-dashoffset 0.3s ease;
     }
 
     &__value {
         position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 18px;
         font-weight: 700;
         color: var(--color-text-primary);

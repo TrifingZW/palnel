@@ -1,8 +1,10 @@
-use common::pal::{PalInfo, PalMetrics};
+use common::pal::{PalInfo, PalMetrics, PalPlayer};
 use leptos::prelude::*;
 
 use crate::components::{
     card::{Card, CardVariant},
+    elevated_button::{ButtonSize, ButtonVariant, ElevatedButton},
+    pal_player_list::PalPlayerList,
     tag::{Tag, TagColor, TagSize},
 };
 
@@ -15,6 +17,56 @@ pub fn PalWorldView() -> impl IntoView {
         description: "PVE 休闲服".into(),
         world_guid: "A1B2C3D4-E5F6-7890-ABCD-EF1234567890".into(),
     };
+
+    let players = vec![
+        PalPlayer {
+            name: "XiaoMing".into(),
+            level: 32,
+            ping: 45.0,
+            location_x: 12345.0,
+            location_y: -6789.0,
+            ip: "192.168.1.101".into(),
+            ..Default::default()
+        },
+        PalPlayer {
+            name: "DarkSlayer".into(),
+            level: 28,
+            ping: 120.0,
+            location_x: -3400.0,
+            location_y: 12500.0,
+            ip: "192.168.1.102".into(),
+            ..Default::default()
+        },
+        PalPlayer {
+            name: "BuilderPro".into(),
+            level: 45,
+            ping: 23.0,
+            location_x: 5600.0,
+            location_y: 8900.0,
+            ip: "192.168.1.103".into(),
+            building_count: 128,
+            ..Default::default()
+        },
+        PalPlayer {
+            name: "Newbie001".into(),
+            level: 5,
+            ping: 200.0,
+            location_x: 100.0,
+            location_y: 200.0,
+            ip: "10.0.0.55".into(),
+            ..Default::default()
+        },
+        PalPlayer {
+            name: "FarmerKing".into(),
+            level: 38,
+            ping: 67.0,
+            location_x: -8900.0,
+            location_y: -4500.0,
+            ip: "192.168.1.104".into(),
+            building_count: 256,
+            ..Default::default()
+        },
+    ];
 
     let metrics = PalMetrics {
         server_fps: 60,
@@ -126,6 +178,50 @@ pub fn PalWorldView() -> impl IntoView {
                         </Card>
                     }
                 }).collect_view()}
+            </div>
+
+            <div class="palworld__body">
+                <PalPlayerList players=players />
+            </div>
+
+            <div class="palworld__footer">
+                {
+                    let announce_icon = view! {
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M13 2.5a1.5 1.5 0 0 1 3 0v11a1.5 1.5 0 0 1-3 0v-.214c-2.162-1.241-4.49-1.843-6.912-2.083l.405 2.712A1 1 0 0 1 5.51 15.1h-.548a1 1 0 0 1-.916-.599l-1.85-3.49a68.14 68.14 0 0 0-.202-.003A2.014 2.014 0 0 1 0 9V7a2.02 2.02 0 0 1 1.992-2.013 74.663 74.663 0 0 0 2.483-.075c3.043-.154 6.148-.849 8.525-2.199V2.5zm1 0v11a.5.5 0 0 0 1 0v-11a.5.5 0 0 0-1 0zm-1 1.35c-2.344 1.205-5.209 1.842-8 2.033v4.233c.18.01.359.022.537.036 2.568.189 5.093.744 7.463 1.993V3.85zm-9 6.215v-4.13a95.09 95.09 0 0 1-1.992.052A1.02 1.02 0 0 0 1 7v2c0 .55.448 1.002 1.006 1.009A60.49 60.49 0 0 1 4 10.065zm-.657.975 1.609 3.037.01.024h.548l-.002-.014-.443-2.966a68.019 68.019 0 0 0-1.722-.082z"/>
+                        </svg>
+                    }.into_any();
+                    view! { <ElevatedButton label="公告".to_string() variant=ButtonVariant::Accent size=ButtonSize::Large icon=announce_icon on_click=move |_| {} /> }
+                }
+                {
+                    let save_icon = view! {
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M2 1a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H9.5a1 1 0 0 0-1 1v7.293l2.646-2.647a.5.5 0 0 1 .708.708l-3.5 3.5a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L7.5 9.293V2a2 2 0 0 1 2-2H14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h2.5a.5.5 0 0 1 0 1H2z"/>
+                        </svg>
+                    }.into_any();
+                    view! { <ElevatedButton label="存档".to_string() variant=ButtonVariant::Accent size=ButtonSize::Large icon=save_icon on_click=move |_| {} /> }
+                }
+                {
+                    let shutdown_icon = view! {
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M7.938 1.016A7.04 7.04 0 0 0 1.242 3.55a6.972 6.972 0 0 0 3.477 11.867.5.5 0 0 0 .144-.99 5.972 5.972 0 0 1-2.98-10.174 6.04 6.04 0 0 1 5.739-2.174.5.5 0 0 0 .627-.462.5.5 0 0 0-.311-.6z"/>
+                            <path d="M5.5 3.62a.5.5 0 0 1 .655.257 5.968 5.968 0 0 0 7.017 3.234.5.5 0 0 1 .585.585 7.044 7.044 0 0 1-4.61 6.03.5.5 0 0 1-.344-.94 6.044 6.044 0 0 0 3.953-5.172 6.968 6.968 0 0 1-7.513-6.339.5.5 0 0 1 .257-.655z"/>
+                            <path d="M8 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6A.5.5 0 0 1 8 0z"/>
+                        </svg>
+                    }.into_any();
+                    view! { <ElevatedButton label="关服".to_string() variant=ButtonVariant::Danger size=ButtonSize::Large icon=shutdown_icon on_click=move |_| {} /> }
+                }
+                {
+                    let force_icon = view! {
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M5.5 3.62a.5.5 0 0 1 .655.257 5.968 5.968 0 0 0 7.017 3.234.5.5 0 0 1 .585.585 7.044 7.044 0 0 1-4.61 6.03.5.5 0 0 1-.344-.94 6.044 6.044 0 0 0 3.953-5.172 6.968 6.968 0 0 1-7.513-6.339.5.5 0 0 1 .257-.655z"/>
+                            <path d="M8 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6A.5.5 0 0 1 8 0z"/>
+                            <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm.354-5.354-1.5 1.5a.5.5 0 0 0 .708.708l.438-.438V14a.5.5 0 0 0 1 0v-1.584l.438.438a.5.5 0 0 0 .708-.708l-1.5-1.5a.5.5 0 0 0-.708 0z"/>
+                            <path d="M8.5 11.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 0 1H9a.5.5 0 0 1-.5-.5z"/>
+                        </svg>
+                    }.into_any();
+                    view! { <ElevatedButton label="强停".to_string() variant=ButtonVariant::Danger size=ButtonSize::Large icon=force_icon on_click=move |_| {} /> }
+                }
             </div>
         </div>
     }

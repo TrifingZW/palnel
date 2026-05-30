@@ -24,8 +24,8 @@
     pointer-events: none;
     transform: translateY(-4px) scale(0.97);
     transition:
-        opacity 180ms ease-out,
-        transform 180ms ease-out;
+        opacity 100ms ease-out,
+        transform 100ms ease-out;
 
     &--visible {
         opacity: 1;

@@ -5,7 +5,20 @@
     padding: 0;
     flex: 1;
     min-height: 0;
-    overflow: hidden auto;
+    overflow: hidden;
+
+    &__body {
+        flex: 1;
+        min-height: 0;
+        background: var(--color-surface);
+    }
+
+    &__footer {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
 }
 
 .palbar {

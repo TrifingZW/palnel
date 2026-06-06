@@ -48,8 +48,8 @@ async fn build_base(rest_ip: &str, rest_port: u16) -> String {
     format!("http://{rest_ip}:{rest_port}")
 }
 
+/// `/v1/api/info` 响应 —— 全小写 key。
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "PascalCase")]
 pub struct PalInfoResponse {
     #[serde(default)]
     pub version: String,
@@ -61,8 +61,8 @@ pub struct PalInfoResponse {
     pub worldguid: String,
 }
 
+/// `/v1/api/metrics` 响应 —— 全小写 key。
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "PascalCase")]
 pub struct PalMetricsResponse {
     #[serde(default)]
     pub serverfps: u32,
@@ -80,23 +80,23 @@ pub struct PalMetricsResponse {
     pub days: u32,
 }
 
+/// `/v1/api/players` 响应 —— `players` 为小写 key。
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "PascalCase")]
 pub struct PalPlayerListResponse {
     #[serde(default)]
     pub players: Vec<PalPlayer>,
 }
 
+/// 玩家对象 —— API 混合 camelCase 与 snake_case，逐字段映射。
 #[derive(Deserialize, Debug, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct PalPlayer {
     #[serde(default)]
     pub name: String,
-    #[serde(default)]
+    #[serde(default, rename = "accountName")]
     pub account_name: String,
-    #[serde(default)]
+    #[serde(default, rename = "playerId")]
     pub player_id: String,
-    #[serde(default)]
+    #[serde(default, rename = "userId")]
     pub user_id: String,
     #[serde(default)]
     pub ip: String,
@@ -112,6 +112,7 @@ pub struct PalPlayer {
     pub building_count: u32,
 }
 
+/// `/v1/api/settings` 响应 —— API 使用 PascalCase。
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct PalSettingsResponse {
@@ -123,11 +124,11 @@ pub struct PalSettingsResponse {
     pub server_description: String,
     #[serde(default)]
     pub death_penalty: String,
-    #[serde(default)]
+    #[serde(default, rename = "PublicIP")]
     pub public_ip: String,
     #[serde(default)]
     pub region: String,
-    #[serde(default)]
+    #[serde(default, rename = "BanListURL")]
     pub ban_list_url: String,
     #[serde(default)]
     pub allow_connect_platform: String,
@@ -206,9 +207,9 @@ pub struct PalSettingsResponse {
     pub server_player_max_num: u32,
     #[serde(default)]
     pub public_port: u32,
-    #[serde(default)]
+    #[serde(default, rename = "RCONPort")]
     pub rcon_port: u32,
-    #[serde(default)]
+    #[serde(default, rename = "RESTAPIPort")]
     pub rest_api_port: u32,
     #[serde(default)]
     pub b_enable_player_to_player_damage: bool,
@@ -241,9 +242,9 @@ pub struct PalSettingsResponse {
     pub b_exist_player_after_logout: bool,
     #[serde(default)]
     pub b_enable_defense_other_guild_player: bool,
-    #[serde(default)]
+    #[serde(default, rename = "RCONEnabled")]
     pub rcon_enabled: bool,
-    #[serde(default)]
+    #[serde(default, rename = "RESTAPIEnabled")]
     pub rest_api_enabled: bool,
     #[serde(default)]
     pub b_show_player_list: bool,

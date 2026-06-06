@@ -19,29 +19,6 @@
         flex-wrap: wrap;
         gap: 8px;
     }
-
-    &__msg-input {
-        height: 46px;
-        padding: 0 14px;
-        font-size: 14px;
-        font-family: inherit;
-        color: var(--color-text-primary);
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: 999px;
-        outline: none;
-        transition: border-color var(--transition-fast);
-        min-width: 180px;
-
-        &::placeholder {
-            color: var(--color-text-secondary);
-            opacity: 0.6;
-        }
-
-        &:focus {
-            border-color: var(--color-accent);
-        }
-    }
 }
 
 .palbar {

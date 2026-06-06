@@ -1,3 +1,4 @@
+pub mod announce_dialog;
 pub mod avatar;
 pub mod bar_progress;
 pub mod card;
@@ -17,3 +18,4 @@ pub mod snackbar_host;
 pub mod snackbar_state;
 pub mod tab_bar;
 pub mod tag;
+pub mod text_field;

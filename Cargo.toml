@@ -41,7 +41,7 @@ tracing-appender = "0.2.5"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt", "std", "time", "local-time"] }
 
 # log
-log = "0.4.30"
+log = "0.4.32"
 console_log = "1.0.0"
 console_error_panic_hook = "0.1.7"
 
@@ -66,8 +66,8 @@ thiserror = "2.0.18"
 
 # 其他工具
 time = { version = "0.3.47", features = ["macros", "local-offset", "formatting"] }
-uuid = { version = "1.23.1", features = ["serde", "v4", "js"] }
-sysinfo = "0.39.2"
+uuid = { version = "1.23.2", features = ["serde", "v4", "js"] }
+sysinfo = "0.39.3"
 zip = "8.6.0"
 walkdir = "2.5.0"
 

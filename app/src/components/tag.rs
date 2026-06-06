@@ -47,12 +47,12 @@ impl TagSize {
 /// 内联标签，支持图标、多色、多尺寸。
 #[component]
 pub fn Tag(
-    #[prop(into)] text: String,
-    #[prop(default = TagSize::Medium)] size: TagSize,
-    #[prop(default = TagColor::Warning)] color: TagColor,
-    #[prop(optional)] icon: Option<AnyView>,
+    #[prop(into)] text: Signal<String>,
+    #[prop(into, default = TagSize::Medium.into())] size: Signal<TagSize>,
+    #[prop(into, default = TagColor::Warning.into())] color: Signal<TagColor>,
+    #[prop(into, optional)] icon: Option<AnyView>,
 ) -> impl IntoView {
-    let class = format!("tag {} {}", size.class(), color.class());
+    let class = move || format!("tag {} {}", size.get().class(), color.get().class());
 
     view! {
         <span class=class>

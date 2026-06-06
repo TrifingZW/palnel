@@ -40,7 +40,7 @@ pub fn AvatarArea() -> impl IntoView {
     let show_menu = RwSignal::new(false);
     let show_login = RwSignal::new(false);
 
-    let auth_resource = Resource::new(|| (), |_| async { get_user().await.unwrap_or(None) });
+    let auth_resource = LocalResource::new(|| async { get_user().await.unwrap_or(None) });
     let is_authenticated =
         Signal::derive(move || auth_resource.get().map(|u| u.is_some()).unwrap_or(false));
 

@@ -1,0 +1,28 @@
+[package]
+name = "services"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+# HTTP 客户端
+reqwest = { workspace = true, features = ["json"] }
+
+# 序列化
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+# 系统信息采集
+sysinfo = { workspace = true }
+
+# 异步运行时
+tokio = { workspace = true }
+
+# 日志
+tracing = { workspace = true }
+
+# 时间
+time = { workspace = true }
+
+# Error
+anyhow = { workspace = true }

@@ -8,6 +8,7 @@ edition.workspace = true
 app = { path = "../app", default-features = false, features = ["ssr"] }
 common = { path = "../common", features = ["ssr"] }
 palguard = { path = "../palguard" }
+services = { path = "../services" }
 
 # Leptos 核心
 leptos = { workspace = true, features = ["ssr"] }
@@ -43,11 +44,8 @@ serde.workspace = true
 serde_json.workspace = true
 
 # Error
-anyhow = { workspace = true }
+anyhow.workspace = true
 
 # 其他工具
 time.workspace = true
 uuid.workspace = true
-sysinfo.workspace = true
-reqwest.workspace = true
-zip.workspace = true

@@ -3207,6 +3207,7 @@ dependencies = [
  "serde",
  "serde_json",
  "server_fn",
+ "services",
  "sqlx",
  "time",
  "tokio",
@@ -3500,11 +3501,10 @@ dependencies = [
  "leptos",
  "leptos_axum",
  "palguard",
- "reqwest",
  "serde",
  "serde_json",
+ "services",
  "sqlx",
- "sysinfo",
  "time",
  "tokio",
  "tokio-stream",
@@ -3514,7 +3514,6 @@ dependencies = [
  "tracing-appender",
  "tracing-subscriber",
  "uuid",
- "zip",
 ]
 
 [[package]]
@@ -3581,6 +3580,20 @@ checksum = "63eb08f80db903d3c42f64e60ebb3875e0305be502bdc064ec0a0eab42207f00"
 dependencies = [
  "server_fn_macro",
  "syn",
+]
+
+[[package]]
+name = "services"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "sysinfo",
+ "time",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]

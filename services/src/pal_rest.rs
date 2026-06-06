@@ -1,10 +1,5 @@
-use common::pal::{PalInfo, PalMetrics, PalPlayer as CommonPlayer, PalPlayerList};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-
-// ---------------------------------------------------------------------------
-// Shared helpers
-// ---------------------------------------------------------------------------
 
 fn build_client() -> reqwest::Result<Client> {
     Client::builder().timeout(std::time::Duration::from_secs(5)).build()
@@ -52,10 +47,6 @@ async fn post(
 async fn build_base(rest_ip: &str, rest_port: u16) -> String {
     format!("http://{rest_ip}:{rest_port}")
 }
-
-// ---------------------------------------------------------------------------
-// Data types – GET responses
-// ---------------------------------------------------------------------------
 
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
@@ -124,7 +115,6 @@ pub struct PalPlayer {
 #[derive(Deserialize, Debug, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct PalSettingsResponse {
-    // --- 字符串 ---
     #[serde(default)]
     pub difficulty: String,
     #[serde(default)]
@@ -143,8 +133,6 @@ pub struct PalSettingsResponse {
     pub allow_connect_platform: String,
     #[serde(default)]
     pub log_format_type: String,
-
-    // --- 倍率/速率 (浮点数) ---
     #[serde(default)]
     pub day_time_speed_rate: f64,
     #[serde(default)]
@@ -195,8 +183,6 @@ pub struct PalSettingsResponse {
     pub enemy_drop_item_rate: f64,
     #[serde(default)]
     pub work_speed_rate: f64,
-
-    // --- 整数计数/端口/时间 ---
     #[serde(default)]
     pub drop_item_max_num: u32,
     #[serde(default)]
@@ -224,8 +210,6 @@ pub struct PalSettingsResponse {
     pub rcon_port: u32,
     #[serde(default)]
     pub rest_api_port: u32,
-
-    // --- 布尔值 ---
     #[serde(default)]
     pub b_enable_player_to_player_damage: bool,
     #[serde(default)]
@@ -269,10 +253,6 @@ pub struct PalSettingsResponse {
     pub b_is_use_backup_save_data: bool,
 }
 
-// ---------------------------------------------------------------------------
-// Data types – POST request bodies
-// ---------------------------------------------------------------------------
-
 #[derive(Serialize, Debug, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct AnnounceRequest {
@@ -313,10 +293,6 @@ pub struct ShutdownRequest {
     #[serde(default)]
     pub message: String,
 }
-
-// ---------------------------------------------------------------------------
-// GET – read-only queries
-// ---------------------------------------------------------------------------
 
 /// 获取服务器基本信息（版本、名称、描述、世界 GUID）。
 pub async fn fetch_info(
@@ -361,10 +337,6 @@ pub async fn fetch_settings(
     let base = build_base(rest_ip, rest_port).await;
     get::<PalSettingsResponse>(&base, "/v1/api/settings", username, password).await
 }
-
-// ---------------------------------------------------------------------------
-// POST – administrative actions
-// ---------------------------------------------------------------------------
 
 /// 向所有在线玩家发送全服公告。
 pub async fn announce(
@@ -467,58 +439,4 @@ pub async fn force_stop_server(
 ) -> Option<()> {
     let base = build_base(rest_ip, rest_port).await;
     post(&base, "/v1/api/stop", username, password, &serde_json::Value::Null).await
-}
-
-// --- Info 转换 ---
-impl From<PalInfoResponse> for PalInfo {
-    fn from(res: PalInfoResponse) -> Self {
-        Self {
-            version: res.version,
-            server_name: res.servername,
-            description: res.description,
-            world_guid: res.worldguid,
-        }
-    }
-}
-
-// --- Metrics 转换 ---
-impl From<PalMetricsResponse> for PalMetrics {
-    fn from(res: PalMetricsResponse) -> Self {
-        Self {
-            server_fps: res.serverfps,
-            current_player_num: res.currentplayernum,
-            max_player_num: res.maxplayernum,
-            server_frame_time: res.serverframetime,
-            uptime: res.uptime,
-            base_camp_num: res.basecampnum,
-            days: res.days,
-        }
-    }
-}
-
-// --- Player 转换 ---
-impl From<PalPlayer> for CommonPlayer {
-    fn from(res: PalPlayer) -> Self {
-        Self {
-            name: res.name,
-            account_name: res.account_name,
-            player_id: res.player_id,
-            user_id: res.user_id,
-            ip: res.ip,
-            ping: res.ping,
-            location_x: res.location_x,
-            location_y: res.location_y,
-            level: res.level,
-            building_count: res.building_count,
-        }
-    }
-}
-
-// --- Player List 转换 ---
-impl From<PalPlayerListResponse> for PalPlayerList {
-    fn from(res: PalPlayerListResponse) -> Self {
-        Self {
-            players: res.players.into_iter().map(Into::into).collect(),
-        }
-    }
 }

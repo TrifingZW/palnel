@@ -83,10 +83,6 @@ pub async fn logout() -> Result<(), ServerFnError> {
     Ok(())
 }
 
-// ==========================================
-// SSR 辅助函数区
-// ==========================================
-
 /// 统一的 Cookie 注入函数，确保前后端认证状态管理的结构一致性
 #[cfg(feature = "ssr")]
 fn set_cookie_header(

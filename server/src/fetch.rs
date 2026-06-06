@@ -6,7 +6,11 @@ use common::{
 };
 use tokio::time::sleep;
 
-use crate::{
+use crate::convert::{
+    pal_info_from_response, pal_metrics_from_response, pal_player_list_from_response,
+    system_metrics_from_svc,
+};
+use services::{
     pal_rest::{fetch_info, fetch_metrics, fetch_players},
     sys_poller::collect_system_metrics,
 };
@@ -28,12 +32,11 @@ pub fn start_palworld_fetch(app_state: &AppState) {
     tokio::spawn(async move {
         loop {
             if let Some(raw_metrics) = fetch_metrics(&ip_m, rest_port, &user_m, &pass_m).await {
-                let clean_metrics: PalMetrics = raw_metrics.into();
+                let clean_metrics: PalMetrics = pal_metrics_from_response(raw_metrics);
                 let mut lock = metrics_state.pal_metrics.write().unwrap();
                 *lock = clean_metrics.clone();
                 let _ = tx_m.send(SsePayload::PalMetricsPayload(clean_metrics));
             } else {
-                // 推送空数据清除前端旧值
                 let _ = tx_m.send(SsePayload::PalMetricsPayload(PalMetrics::default()));
             }
             sleep(Duration::from_secs(1)).await;
@@ -49,12 +52,11 @@ pub fn start_palworld_fetch(app_state: &AppState) {
     tokio::spawn(async move {
         loop {
             if let Some(raw_players) = fetch_players(&ip_p, rest_port, &user_p, &pass_p).await {
-                let clean_players: PalPlayerList = raw_players.into();
+                let clean_players: PalPlayerList = pal_player_list_from_response(raw_players);
                 let mut lock = players_state.pal_player_list.write().unwrap();
                 *lock = clean_players.clone();
                 let _ = tx_p.send(SsePayload::PalPlayerListPayload(clean_players));
             } else {
-                // 仅当 metrics 认为在线但 players 拉取失败时，推送空数据
                 let _ = tx_p.send(SsePayload::PalPlayerListPayload(PalPlayerList::default()));
             }
             sleep(Duration::from_secs(1)).await;
@@ -67,7 +69,7 @@ pub fn start_palworld_fetch(app_state: &AppState) {
     tokio::spawn(async move {
         loop {
             if let Some(raw_info) = fetch_info(&ip, rest_port, &username, &password).await {
-                let clean_info: PalInfo = raw_info.into();
+                let clean_info: PalInfo = pal_info_from_response(raw_info);
                 let mut lock = info_state.pal_info.write().unwrap();
                 *lock = clean_info.clone();
                 let _ = tx_i.send(SsePayload::PalInfoPayload(clean_info));
@@ -84,11 +86,12 @@ pub fn start_system_metrics_fetch(app_state: &AppState) {
     tokio::spawn(async move {
         loop {
             let sys_metrics = collect_system_metrics().await;
+            let common_metrics = system_metrics_from_svc(sys_metrics);
             {
                 let mut lock = arc_sys_metrics.write().unwrap();
-                *lock = sys_metrics.clone();
+                *lock = common_metrics.clone();
             }
-            let _ = sse_tx.send(SsePayload::SystemMetricsPayload(sys_metrics));
+            let _ = sse_tx.send(SsePayload::SystemMetricsPayload(common_metrics));
 
             sleep(Duration::from_secs(1)).await;
         }

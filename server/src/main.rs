@@ -1,12 +1,11 @@
 #![recursion_limit = "1024"]
 
+pub mod convert;
 pub mod db;
 pub mod fetch;
 pub mod logger;
-pub mod pal_rest;
 pub mod routes;
 pub mod server;
-pub mod sys_poller;
 
 use std::sync::{Arc, RwLock};
 

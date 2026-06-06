@@ -6,6 +6,7 @@ edition.workspace = true
 
 [dependencies]
 common = { path = "../common" }
+services = { path = "../services", optional = true }
 
 # Leptos 核心
 leptos.workspace = true
@@ -62,6 +63,7 @@ ssr = [
 
     "common/ssr",
 
+    "dep:services",
     "dep:reqwest",
     "dep:zip",
     "dep:walkdir",

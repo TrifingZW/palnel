@@ -1,12 +1,22 @@
 use leptos::{portal::Portal, prelude::*};
-use rpc::login::Login;
+use rpc::{login::Login, user::get_user};
 
-use crate::components::snackbar::SnackbarVariant;
-use crate::components::snackbar_state::SnackbarState;
+use crate::components::{snackbar::SnackbarVariant, snackbar_state::SnackbarState};
 
 /// 登录弹窗，集成 RPC 调用、加载状态、表单验证与全局反馈。
 #[component]
 pub fn LoginDialog(show: RwSignal<bool>, is_authenticated: RwSignal<bool>) -> impl IntoView {
+    let auth_trigger = RwSignal::new(0);
+    let user_resource = Resource::new(
+        move || auth_trigger.get(),
+        move |_| async move { get_user().await.unwrap_or(None) },
+    );
+    Effect::new(move || {
+        if let Some(res) = user_resource.get() {
+            is_authenticated.set(res.is_some());
+        }
+    });
+
     let login = ServerAction::<Login>::new();
     let is_loading = move || login.pending().get();
     let snackbar = SnackbarState::use_state();

@@ -8,7 +8,6 @@ pub enum DialogVariant {
 }
 
 impl DialogVariant {
-    /// 返回 BEM 修饰符类名。
     pub fn class(&self) -> &'static str {
         match self {
             DialogVariant::Default => "dialog--default",
@@ -18,16 +17,12 @@ impl DialogVariant {
 }
 
 /// 模态确认弹窗，支持标题、正文、图标及确认/取消操作。
-///
-/// `show` 信号控制显示状态；点击遮罩、关闭按钮或取消按钮均会调用
-/// `dismiss` 将 `show` 置为 `false` 并触发 `on_close` 回调。
 #[component]
 pub fn Dialog(
     #[prop(into)] title: String,
     #[prop(into)] message: String,
     show: RwSignal<bool>,
     #[prop(default = DialogVariant::Default)] variant: DialogVariant,
-    #[prop(optional)] icon: Option<AnyView>,
     #[prop(optional)] confirm_label: Option<String>,
     #[prop(optional)] cancel_label: Option<String>,
     #[prop(optional)] on_confirm: Option<Callback<()>>,
@@ -43,25 +38,7 @@ pub fn Dialog(
         }
     };
 
-    let default_icon = view! {
-        <svg class="dialog__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            {match variant {
-                DialogVariant::Default => view! {
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 16v-4M12 8h0"/>
-                }.into_any(),
-                DialogVariant::Danger => view! {
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 8v4M12 16h0"/>
-                }.into_any(),
-            }}
-        </svg>
-    }
-    .into_any();
-
-    let icon_view = icon.unwrap_or(default_icon);
-
-    view! {
+    let dialog_view = view! {
         <div
             class=class
             class:dialog--visible=move || show.get()
@@ -75,7 +52,20 @@ pub fn Dialog(
             <div class="dialog__card">
                 <div class="dialog__header">
                     <div class="dialog__title-row">
-                        {icon_view}
+                        {view! {
+                            <svg class="dialog__icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                {match variant {
+                                    DialogVariant::Default => view! {
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 16v-4M12 8h0"/>
+                                    },
+                                    DialogVariant::Danger => view! {
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 8v4M12 16h0"/>
+                                    },
+                                }}
+                            </svg>
+                        }}
                         <h2 class="dialog__title">{title}</h2>
                     </div>
                     <button
@@ -94,7 +84,6 @@ pub fn Dialog(
                 <div class="dialog__footer">
                     {if let Some(label) = cancel_label {
                         let on_cancel = on_cancel.clone();
-                        let dismiss = dismiss.clone();
                         view! {
                             <button
                                 class="dialog__btn dialog__btn--cancel"
@@ -113,7 +102,6 @@ pub fn Dialog(
                     }}
                     {if let Some(label) = confirm_label {
                         let on_confirm = on_confirm.clone();
-                        let dismiss = dismiss.clone();
                         view! {
                             <button
                                 class="dialog__btn dialog__btn--confirm"
@@ -133,5 +121,7 @@ pub fn Dialog(
                 </div>
             </div>
         </div>
-    }
+    };
+
+    dialog_view
 }

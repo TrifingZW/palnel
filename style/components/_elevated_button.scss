@@ -60,4 +60,40 @@
             background: #bfdbfe;
         }
     }
+
+    &--disabled {
+        opacity: 0.42;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    &--loading {
+        cursor: wait;
+        pointer-events: none;
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+
+        &_hidden {
+            display: none;
+        }
+    }
+
+    &__spinner {
+        width: 14px;
+        height: 14px;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        border-radius: 50%;
+        opacity: 0.5;
+        animation: elevated-btn-spin 600ms linear infinite;
+    }
+}
+
+@keyframes elevated-btn-spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

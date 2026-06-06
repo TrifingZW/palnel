@@ -1,29 +1,19 @@
 use leptos::prelude::*;
+use rpc::user::get_user;
 
 use crate::components::{
     login_dialog::LoginDialog,
     menu::{Menu, MenuAction},
 };
 
-/// 盾牌图标 SVG。
 fn shield_svg() -> impl IntoView {
     view! {
-        <svg
-            width="18"
-            height="18"
-            viewBox="0 0 20 20"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-        >
-            <path
-                d="M10 2L3 5v5c0 4.418 2.91 8.087 7 9 4.09-.913 7-4.582 7-9V5l-7-3z"
-                fill="currentColor"
-            />
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 2L3 5v5c0 4.418 2.91 8.087 7 9 4.09-.913 7-4.582 7-9V5l-7-3z" fill="currentColor"/>
         </svg>
     }
 }
 
-/// 登录箭头图标 SVG。
 fn login_icon_svg() -> impl IntoView {
     view! {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -34,7 +24,6 @@ fn login_icon_svg() -> impl IntoView {
     }
 }
 
-/// 登出箭头图标 SVG。
 fn logout_icon_svg() -> impl IntoView {
     view! {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -50,7 +39,10 @@ fn logout_icon_svg() -> impl IntoView {
 pub fn AvatarArea() -> impl IntoView {
     let show_menu = RwSignal::new(false);
     let show_login = RwSignal::new(false);
-    let is_authenticated = RwSignal::new(false);
+
+    let auth_resource = Resource::new(|| (), |_| async { get_user().await.unwrap_or(None) });
+    let is_authenticated =
+        Signal::derive(move || auth_resource.get().map(|u| u.is_some()).unwrap_or(false));
 
     let toggle_menu = move |ev: leptos::ev::MouseEvent| {
         ev.stop_propagation();
@@ -65,8 +57,13 @@ pub fn AvatarArea() -> impl IntoView {
     });
 
     let handle_logout = Callback::new(move |()| {
-        is_authenticated.set(false);
+        auth_resource.set(None);
         show_menu.set(false);
+    });
+
+    let handle_login_success = Callback::new(move |()| {
+        auth_resource.refetch();
+        show_login.set(false);
     });
 
     view! {
@@ -114,6 +111,10 @@ pub fn AvatarArea() -> impl IntoView {
             </Menu>
         </div>
 
-        <LoginDialog show=show_login is_authenticated=is_authenticated />
+        <LoginDialog
+            show=show_login
+            is_authenticated=Signal::derive(move || is_authenticated.get())
+            on_login_success=handle_login_success
+        />
     }
 }

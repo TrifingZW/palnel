@@ -1,22 +1,15 @@
 use leptos::{portal::Portal, prelude::*};
-use rpc::{login::Login, user::get_user};
+use rpc::login::Login;
 
 use crate::components::{snackbar::SnackbarVariant, snackbar_state::SnackbarState};
 
-/// 登录弹窗，集成 RPC 调用、加载状态、表单验证与全局反馈。
+/// 登录弹窗，集成 RPC 调用、加载状态与全局反馈。
 #[component]
-pub fn LoginDialog(show: RwSignal<bool>, is_authenticated: RwSignal<bool>) -> impl IntoView {
-    let auth_trigger = RwSignal::new(0);
-    let user_resource = Resource::new(
-        move || auth_trigger.get(),
-        move |_| async move { get_user().await.unwrap_or(None) },
-    );
-    Effect::new(move || {
-        if let Some(res) = user_resource.get() {
-            is_authenticated.set(res.is_some());
-        }
-    });
-
+pub fn LoginDialog(
+    show: RwSignal<bool>,
+    is_authenticated: Signal<bool>,
+    on_login_success: Callback<()>,
+) -> impl IntoView {
     let login = ServerAction::<Login>::new();
     let is_loading = move || login.pending().get();
     let snackbar = SnackbarState::use_state();
@@ -28,8 +21,7 @@ pub fn LoginDialog(show: RwSignal<bool>, is_authenticated: RwSignal<bool>) -> im
         if let Some(res) = login.value().get() {
             match res {
                 Ok(_) => {
-                    is_authenticated.set(true);
-                    show.set(false);
+                    on_login_success.run(());
                     snackbar.show("认证成功。", SnackbarVariant::Success);
                 }
                 Err(e) => {
@@ -53,6 +45,8 @@ pub fn LoginDialog(show: RwSignal<bool>, is_authenticated: RwSignal<bool>) -> im
     let dismiss = move || {
         show.set(false);
     };
+
+    let submit_disabled = move || is_loading() || is_authenticated.get();
 
     view! {
         <Portal>
@@ -142,7 +136,7 @@ pub fn LoginDialog(show: RwSignal<bool>, is_authenticated: RwSignal<bool>) -> im
                             <button
                                 class="dialog__btn dialog__btn--confirm dialog__btn--block"
                                 type="submit"
-                                disabled=is_loading
+                                disabled=submit_disabled
                             >
                                 {move || {
                                     if is_loading() {

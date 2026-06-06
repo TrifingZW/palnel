@@ -85,14 +85,11 @@ pub fn Panel() -> impl IntoView {
     let stop_action = ServerAction::<PalguardStop>::new();
     let restart_action = ServerAction::<PalguardRestart>::new();
 
-    // 2) 标记提交完成但 SSE 尚未反馈的等待阶段
-    let (awaiting_sse, set_awaiting_sse) = signal(false);
-
-    // 3) 消费 action 返回值：仅在提交成功时进入等待 SSE 阶段
+    // 2) 消费 action 返回值：仅在提交成功时进入等待 SSE 阶段
     Effect::new(move || {
         if let Some(Ok(())) = start_action.value().get() {
             start_action.value().set(None);
-            set_awaiting_sse.set(true);
+            sse.awaiting_sse.set(true);
         } else if start_action.value().get().is_some() {
             start_action.value().set(None);
         }
@@ -100,7 +97,7 @@ pub fn Panel() -> impl IntoView {
     Effect::new(move || {
         if let Some(Ok(())) = stop_action.value().get() {
             stop_action.value().set(None);
-            set_awaiting_sse.set(true);
+            sse.awaiting_sse.set(true);
         } else if stop_action.value().get().is_some() {
             stop_action.value().set(None);
         }
@@ -108,19 +105,13 @@ pub fn Panel() -> impl IntoView {
     Effect::new(move || {
         if let Some(Ok(())) = restart_action.value().get() {
             restart_action.value().set(None);
-            set_awaiting_sse.set(true);
+            sse.awaiting_sse.set(true);
         } else if restart_action.value().get().is_some() {
             restart_action.value().set(None);
         }
     });
 
-    // 4) SSE 状态变更时解除等待
-    Effect::new(move || {
-        sse.palguard_process.track();
-        set_awaiting_sse.set(false);
-    });
-
-    // 5) 各按钮的禁用逻辑：已达到目标状态 或 其他操作进行中
+    // 3) 各按钮的禁用逻辑：已达到目标状态 或 其他操作进行中
     let start_loading = move || start_action.pending().get();
     let stop_loading = move || stop_action.pending().get();
     let restart_loading = move || restart_action.pending().get();
@@ -129,21 +120,21 @@ pub fn Panel() -> impl IntoView {
         matches!(sse.palguard_process.get(), PalguardProcessStatus::Running { .. })
             || stop_action.pending().get()
             || restart_action.pending().get()
-            || awaiting_sse.get()
+            || sse.awaiting_sse.get()
     });
 
     let stop_disabled = Signal::derive(move || {
         !matches!(sse.palguard_process.get(), PalguardProcessStatus::Running { .. })
             || start_action.pending().get()
             || restart_action.pending().get()
-            || awaiting_sse.get()
+            || sse.awaiting_sse.get()
     });
 
     let restart_disabled = Signal::derive(move || {
         matches!(sse.palguard_process.get(), PalguardProcessStatus::Stopped)
             || start_action.pending().get()
             || stop_action.pending().get()
-            || awaiting_sse.get()
+            || sse.awaiting_sse.get()
     });
 
     view! {

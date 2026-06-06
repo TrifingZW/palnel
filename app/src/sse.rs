@@ -15,6 +15,8 @@ pub struct SseData {
     pub sys_metrics: RwSignal<SystemMetrics>,
     pub palguard_process: RwSignal<PalguardProcessStatus>,
     pub connected: RwSignal<bool>,
+    /// 提交操作成功但 SSE 尚未确认状态变更时为 `true`。
+    pub awaiting_sse: RwSignal<bool>,
 }
 
 /// 创建信号集合，SSR 阶段从 `AppState` 读取真实状态初始化，客户端通过 SSE 持续更新。
@@ -41,6 +43,8 @@ pub fn create_sse() -> SseData {
         }
     };
 
+    let awaiting_sse = RwSignal::new(false);
+
     let data = SseData {
         pal_info: RwSignal::new(pal_info),
         pal_metrics: RwSignal::new(pal_metrics),
@@ -48,9 +52,9 @@ pub fn create_sse() -> SseData {
         sys_metrics: RwSignal::new(sys_metrics),
         palguard_process: RwSignal::new(palguard_process),
         connected: RwSignal::new(false),
+        awaiting_sse,
     };
 
-    // 捕获信号副本，移入 Effect（`RwSignal` 是 Copy）
     let pi = data.pal_info;
     let pm = data.pal_metrics;
     let ppl = data.pal_player_list;
@@ -65,7 +69,6 @@ pub fn create_sse() -> SseData {
             Err(_) => return,
         };
 
-        // 1) 连接状态回调
         {
             let c = conn;
             let on_open = Closure::wrap(Box::new(move || c.set(true)) as Box<dyn FnMut()>);
@@ -79,7 +82,6 @@ pub fn create_sse() -> SseData {
             on_error.forget();
         }
 
-        // 2) palinfo
         {
             let sig = pi;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
@@ -94,7 +96,6 @@ pub fn create_sse() -> SseData {
             on_msg.forget();
         }
 
-        // 3) palmetrics
         {
             let sig = pm;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
@@ -110,7 +111,6 @@ pub fn create_sse() -> SseData {
             on_msg.forget();
         }
 
-        // 4) palplayerlist
         {
             let sig = ppl;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
@@ -126,7 +126,6 @@ pub fn create_sse() -> SseData {
             on_msg.forget();
         }
 
-        // 5) systemmetrics
         {
             let sig = sm;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
@@ -142,14 +141,16 @@ pub fn create_sse() -> SseData {
             on_msg.forget();
         }
 
-        // 6) palguardprocess
+        // palguardprocess：同 batch 清除 awaiting_sse，避免中间帧闪烁
         {
             let sig = pgp;
+            let awaiting = awaiting_sse;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
                 Closure::wrap(Box::new(move |e: MessageEvent| {
                     if let Some(json) = e.data().as_string() {
                         if let Ok(val) = serde_json::from_str::<PalguardProcessStatus>(&json) {
                             sig.set(val);
+                            awaiting.set(false);
                         }
                     }
                 }));

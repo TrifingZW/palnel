@@ -1,4 +1,6 @@
+use common::pal::PalguardProcessStatus;
 use leptos::prelude::*;
+use rpc::palguard::{PalguardRestart, PalguardStart, PalguardStop};
 
 use crate::{
     components::{
@@ -7,6 +9,7 @@ use crate::{
         tab_bar::{PanelTab, TabBar},
         tag::{Tag, TagColor, TagSize},
     },
+    sse::create_sse,
     views::{
         dashboard::DashboardView, map::MapView, palworld::PalWorldView, saves::SaveView,
         settings::SettingsView,
@@ -16,9 +19,47 @@ use crate::{
 /// 主面板，组合导航、状态栏、操作按钮及内容区。
 #[component]
 pub fn Panel() -> impl IntoView {
+    let sse = create_sse();
     let (active_tab, set_active_tab) = signal(PanelTab::PalWorld);
-    let (running, _set_running) = signal(true);
-    let (pid, _set_pid) = signal(12345u32);
+
+    let status = Memo::new(move |_| match sse.palguard_process.get() {
+        PalguardProcessStatus::Stopped => "未启动".to_string(),
+        PalguardProcessStatus::Running {
+            ..
+        } => "运行中".to_string(),
+        PalguardProcessStatus::Crashed {
+            ..
+        } => "异常退出".to_string(),
+    });
+
+    let status_color = Memo::new(move |_| match sse.palguard_process.get() {
+        PalguardProcessStatus::Stopped => TagColor::Danger,
+        PalguardProcessStatus::Running {
+            ..
+        } => TagColor::Success,
+        PalguardProcessStatus::Crashed {
+            ..
+        } => TagColor::Warning,
+    });
+
+    let status_icon = Memo::new(move |_| match sse.palguard_process.get() {
+        PalguardProcessStatus::Running {
+            ..
+        } => "status-dot status-dot--pulse".to_string(),
+        _ => "status-dot".to_string(),
+    });
+
+    let sub_status = Memo::new(move |_| match sse.palguard_process.get() {
+        PalguardProcessStatus::Stopped => "PID: 0".to_string(),
+        PalguardProcessStatus::Running {
+            pid,
+            ..
+        } => format!("PID: {}", pid),
+        PalguardProcessStatus::Crashed {
+            exit_code,
+            ..
+        } => format!("ExitCode: {}", exit_code.unwrap_or_default()),
+    });
 
     let start_icon = view! {
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -39,6 +80,72 @@ pub fn Panel() -> impl IntoView {
         </svg>
     }.into_any();
 
+    // 1) 三个 ServerAction，分别对应启动、关闭、重启
+    let start_action = ServerAction::<PalguardStart>::new();
+    let stop_action = ServerAction::<PalguardStop>::new();
+    let restart_action = ServerAction::<PalguardRestart>::new();
+
+    // 2) 标记提交完成但 SSE 尚未反馈的等待阶段
+    let (awaiting_sse, set_awaiting_sse) = signal(false);
+
+    // 3) 消费 action 返回值：仅在提交成功时进入等待 SSE 阶段
+    Effect::new(move || {
+        if let Some(Ok(())) = start_action.value().get() {
+            start_action.value().set(None);
+            set_awaiting_sse.set(true);
+        } else if start_action.value().get().is_some() {
+            start_action.value().set(None);
+        }
+    });
+    Effect::new(move || {
+        if let Some(Ok(())) = stop_action.value().get() {
+            stop_action.value().set(None);
+            set_awaiting_sse.set(true);
+        } else if stop_action.value().get().is_some() {
+            stop_action.value().set(None);
+        }
+    });
+    Effect::new(move || {
+        if let Some(Ok(())) = restart_action.value().get() {
+            restart_action.value().set(None);
+            set_awaiting_sse.set(true);
+        } else if restart_action.value().get().is_some() {
+            restart_action.value().set(None);
+        }
+    });
+
+    // 4) SSE 状态变更时解除等待
+    Effect::new(move || {
+        sse.palguard_process.track();
+        set_awaiting_sse.set(false);
+    });
+
+    // 5) 各按钮的禁用逻辑：已达到目标状态 或 其他操作进行中
+    let start_loading = move || start_action.pending().get();
+    let stop_loading = move || stop_action.pending().get();
+    let restart_loading = move || restart_action.pending().get();
+
+    let start_disabled = Signal::derive(move || {
+        matches!(sse.palguard_process.get(), PalguardProcessStatus::Running { .. })
+            || stop_action.pending().get()
+            || restart_action.pending().get()
+            || awaiting_sse.get()
+    });
+
+    let stop_disabled = Signal::derive(move || {
+        !matches!(sse.palguard_process.get(), PalguardProcessStatus::Running { .. })
+            || start_action.pending().get()
+            || restart_action.pending().get()
+            || awaiting_sse.get()
+    });
+
+    let restart_disabled = Signal::derive(move || {
+        matches!(sse.palguard_process.get(), PalguardProcessStatus::Stopped)
+            || start_action.pending().get()
+            || stop_action.pending().get()
+            || awaiting_sse.get()
+    });
+
     view! {
         <div class="panel">
             <header class="panel__header">
@@ -52,41 +159,62 @@ pub fn Panel() -> impl IntoView {
                 <div class="panel__header-row">
                     <TabBar active_tab=active_tab on_change=move |tab| set_active_tab.set(tab) />
                     <div class="panel__status">
-                        {move || {
-                            if running.get() {
-                                view! {
-                                    <span class="tag tag--lg tag--success">
-                                        <span class="status-dot status-dot--pulse"></span>
-                                        "运行中"
-                                    </span>
-                                }.into_any()
-                            } else {
-                                view! {
-                                    <span class="tag tag--lg tag--danger">
-                                        <span class="status-dot"></span>
-                                        "已停止"
-                                    </span>
-                                }.into_any()
-                            }
-                        }}
-                        {move || {
-                            view! {
-                                <Tag text=format!("PID: {}", pid.get()) size=TagSize::Large color=TagColor::Info />
-                            }
-                        }}
+                        <Tag text=status size=TagSize::Large color=status_color icon=view! {
+                            <span class=status_icon />
+                        }.into_any()/>
+                        <Tag text=sub_status size=TagSize::Large color=TagColor::Info />
                     </div>
                     <div class="panel__actions">
-                        <ElevatedButton label="启动" variant=ButtonVariant::Success size=ButtonSize::Large icon=start_icon on_click=move |_| {} />
-                        <ElevatedButton label="关闭" variant=ButtonVariant::Danger size=ButtonSize::Large icon=stop_icon on_click=move |_| {} />
-                        <ElevatedButton label="重启" variant=ButtonVariant::Accent size=ButtonSize::Large icon=restart_icon on_click=move |_| {} />
+                        <ActionForm action=start_action>
+                            <ElevatedButton
+                                label="启动"
+                                loading_label="启动中…"
+                                variant=ButtonVariant::Success
+                                size=ButtonSize::Large
+                                icon=start_icon
+                                disabled=start_disabled
+                                loading=start_loading
+                                button_type="submit"
+                            />
+                        </ActionForm>
+                        <ActionForm action=stop_action>
+                            <ElevatedButton
+                                label="关闭"
+                                loading_label="关闭中…"
+                                variant=ButtonVariant::Danger
+                                size=ButtonSize::Large
+                                icon=stop_icon
+                                disabled=stop_disabled
+                                loading=stop_loading
+                                button_type="submit"
+                            />
+                        </ActionForm>
+                        <ActionForm action=restart_action>
+                            <ElevatedButton
+                                label="重启"
+                                loading_label="重启中…"
+                                variant=ButtonVariant::Accent
+                                size=ButtonSize::Large
+                                icon=restart_icon
+                                disabled=restart_disabled
+                                loading=restart_loading
+                                button_type="submit"
+                            />
+                        </ActionForm>
                     </div>
                 </div>
             </header>
             <hr class="panel__divider" />
             <main class="panel__content">
                 {move || match active_tab.get() {
-                    PanelTab::PalWorld => view! { <PalWorldView /> }.into_any(),
-                    PanelTab::Dashboard => view! { <DashboardView /> }.into_any(),
+                    PanelTab::PalWorld => view! {
+                        <PalWorldView
+                            pal_info=sse.pal_info
+                            pal_metrics=sse.pal_metrics
+                            pal_player_list=sse.pal_player_list
+                        />
+                    }.into_any(),
+                    PanelTab::Dashboard => view! { <DashboardView sys_metrics=sse.sys_metrics /> }.into_any(),
                     PanelTab::Saves => view! { <SaveView /> }.into_any(),
                     PanelTab::Map => view! { <MapView /> }.into_any(),
                     PanelTab::Settings => view! { <SettingsView /> }.into_any(),

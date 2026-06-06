@@ -1,8 +1,9 @@
-use common::pal::{PalInfo, PalMetrics, PalPlayerList};
+use common::pal::{PalInfo, PalMetrics, PalPlayerList, PalguardProcessStatus};
 use leptos::prelude::*;
 use rpc::palguard::{PalguardAnnounce, PalguardForceStop, PalguardSave, PalguardShutdown};
 
 use crate::components::{
+    announce_dialog::AnnounceDialog,
     card::{Card, CardVariant},
     elevated_button::{ButtonSize, ButtonVariant, ElevatedButton},
     pal_player_list::PalPlayerList,
@@ -96,47 +97,49 @@ pub fn PalWorldView(
     pal_info: RwSignal<PalInfo>,
     pal_metrics: RwSignal<PalMetrics>,
     pal_player_list: RwSignal<PalPlayerList>,
+    palguard_process: RwSignal<PalguardProcessStatus>,
 ) -> impl IntoView {
     let announce_action = ServerAction::<PalguardAnnounce>::new();
     let save_action = ServerAction::<PalguardSave>::new();
     let shutdown_action = ServerAction::<PalguardShutdown>::new();
     let force_stop_action = ServerAction::<PalguardForceStop>::new();
 
-    let announce_loading = move || announce_action.pending().get();
+    let announce_loading = Signal::derive(move || announce_action.pending().get());
     let save_loading = move || save_action.pending().get();
     let shutdown_loading = move || shutdown_action.pending().get();
     let force_stop_loading = move || force_stop_action.pending().get();
 
+    let server_not_running =
+        move || !matches!(palguard_process.get(), PalguardProcessStatus::Running { .. });
+
     let announce_disabled = Signal::derive(move || {
-        save_action.pending().get()
+        server_not_running()
+            || save_action.pending().get()
             || shutdown_action.pending().get()
             || force_stop_action.pending().get()
     });
 
     let save_disabled = Signal::derive(move || {
-        announce_action.pending().get()
+        server_not_running()
+            || announce_action.pending().get()
             || shutdown_action.pending().get()
             || force_stop_action.pending().get()
     });
 
     let shutdown_disabled = Signal::derive(move || {
-        announce_action.pending().get()
+        server_not_running()
+            || announce_action.pending().get()
             || save_action.pending().get()
             || force_stop_action.pending().get()
     });
 
     let force_stop_disabled = Signal::derive(move || {
-        announce_action.pending().get()
+        server_not_running()
+            || announce_action.pending().get()
             || save_action.pending().get()
             || shutdown_action.pending().get()
     });
 
-    // 消费 action 返回值
-    Effect::new(move || {
-        if announce_action.value().get().is_some() {
-            announce_action.value().set(None);
-        }
-    });
     Effect::new(move || {
         if save_action.value().get().is_some() {
             save_action.value().set(None);
@@ -152,6 +155,8 @@ pub fn PalWorldView(
             force_stop_action.value().set(None);
         }
     });
+
+    let show_announce_dialog = RwSignal::new(false);
 
     let announce_icon = view! {
         <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -230,25 +235,16 @@ pub fn PalWorldView(
             </div>
 
             <div class="palworld__footer">
-                <ActionForm action=announce_action>
-                    <input
-                        class="palworld__msg-input"
-                        type="text"
-                        name="message"
-                        placeholder="公告内容…"
-                        maxlength="256"
-                    />
-                    <ElevatedButton
-                        label="公告"
-                        loading_label="发送中…"
-                        variant=ButtonVariant::Accent
-                        size=ButtonSize::Large
-                        icon=announce_icon
-                        disabled=announce_disabled
-                        loading=announce_loading
-                        button_type="submit"
-                    />
-                </ActionForm>
+                <ElevatedButton
+                    label="公告"
+                    loading_label="公告"
+                    variant=ButtonVariant::Accent
+                    size=ButtonSize::Large
+                    icon=announce_icon
+                    disabled=announce_disabled
+                    loading=Signal::derive(|| false)
+                    on_click=Callback::new(move |_| show_announce_dialog.set(true))
+                />
                 <ActionForm action=save_action>
                     <ElevatedButton
                         label="存档"
@@ -288,6 +284,13 @@ pub fn PalWorldView(
                     />
                 </ActionForm>
             </div>
+
+            <AnnounceDialog
+                show=show_announce_dialog
+                announce_action=announce_action
+                disabled=announce_disabled
+                loading=announce_loading
+            />
         </div>
     }
 }

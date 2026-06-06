@@ -212,6 +212,7 @@ pub fn Panel() -> impl IntoView {
                             pal_info=sse.pal_info
                             pal_metrics=sse.pal_metrics
                             pal_player_list=sse.pal_player_list
+                            palguard_process=sse.palguard_process
                         />
                     }.into_any(),
                     PanelTab::Dashboard => view! { <DashboardView sys_metrics=sse.sys_metrics /> }.into_any(),

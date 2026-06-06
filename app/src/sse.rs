@@ -17,27 +17,46 @@ pub struct SseData {
     pub connected: RwSignal<bool>,
 }
 
-/// 创建信号集合并**延迟**到浏览器端建立 `/api/sse` 的 EventSource 连接。
-///
-/// 必须从 `#[component]`（或其它 reactive owner）内调用，
-/// 因为内部使用 `Effect::new` 将连接发起时机限制在客户端水合阶段。
+/// 创建信号集合，SSR 阶段从 `AppState` 读取真实状态初始化，客户端通过 SSE 持续更新。
 pub fn create_sse() -> SseData {
+    // SSR 阶段从 AppState 读取后台轮询器已采集的真实状态，确保首屏渲染不为空
+    let (pal_info, pal_metrics, pal_player_list, sys_metrics, palguard_process) = {
+        #[cfg(feature = "ssr")]
+        {
+            if let Some(state) = use_context::<common::state::AppState>() {
+                (
+                    state.pal_info.read().unwrap().clone(),
+                    state.pal_metrics.read().unwrap().clone(),
+                    state.pal_player_list.read().unwrap().clone(),
+                    state.sys_metrics.read().unwrap().clone(),
+                    state.palguard_process.read().unwrap().clone(),
+                )
+            } else {
+                Default::default()
+            }
+        }
+        #[cfg(not(feature = "ssr"))]
+        {
+            Default::default()
+        }
+    };
+
     let data = SseData {
-        pal_info: RwSignal::new(PalInfo::default()),
-        pal_metrics: RwSignal::new(PalMetrics::default()),
-        pal_player_list: RwSignal::new(PalPlayerList::default()),
-        sys_metrics: RwSignal::new(SystemMetrics::default()),
-        palguard_process: RwSignal::new(PalguardProcessStatus::default()),
+        pal_info: RwSignal::new(pal_info),
+        pal_metrics: RwSignal::new(pal_metrics),
+        pal_player_list: RwSignal::new(pal_player_list),
+        sys_metrics: RwSignal::new(sys_metrics),
+        palguard_process: RwSignal::new(palguard_process),
         connected: RwSignal::new(false),
     };
 
     // 捕获信号副本，移入 Effect（`RwSignal` 是 Copy）
-    let pal_info = data.pal_info;
-    let pal_metrics = data.pal_metrics;
-    let pal_player_list = data.pal_player_list;
-    let sys_metrics = data.sys_metrics;
-    let palguard_process = data.palguard_process;
-    let connected = data.connected;
+    let pi = data.pal_info;
+    let pm = data.pal_metrics;
+    let ppl = data.pal_player_list;
+    let sm = data.sys_metrics;
+    let pgp = data.palguard_process;
+    let conn = data.connected;
 
     // Effect 仅在浏览器端执行，SSR 阶段自动跳过
     Effect::new(move || {
@@ -48,13 +67,13 @@ pub fn create_sse() -> SseData {
 
         // 1) 连接状态回调
         {
-            let c = connected;
+            let c = conn;
             let on_open = Closure::wrap(Box::new(move || c.set(true)) as Box<dyn FnMut()>);
             es.set_onopen(Some(on_open.as_ref().unchecked_ref()));
             on_open.forget();
         }
         {
-            let c = connected;
+            let c = conn;
             let on_error = Closure::wrap(Box::new(move || c.set(false)) as Box<dyn FnMut()>);
             es.set_onerror(Some(on_error.as_ref().unchecked_ref()));
             on_error.forget();
@@ -62,16 +81,12 @@ pub fn create_sse() -> SseData {
 
         // 2) palinfo
         {
-            let sig = pal_info;
+            let sig = pi;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
                 Closure::wrap(Box::new(move |e: MessageEvent| {
                     if let Some(json) = e.data().as_string() {
                         if let Ok(val) = serde_json::from_str::<PalInfo>(&json) {
-                            let val2 = val.clone();
                             sig.set(val);
-                            web_sys::console::log_1(
-                                &format!("SSE palinfo received: {val2:?}").into(),
-                            );
                         }
                     }
                 }));
@@ -81,20 +96,12 @@ pub fn create_sse() -> SseData {
 
         // 3) palmetrics
         {
-            let sig = pal_metrics;
+            let sig = pm;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
                 Closure::wrap(Box::new(move |e: MessageEvent| {
                     if let Some(json) = e.data().as_string() {
-                        match serde_json::from_str::<PalMetrics>(&json) {
-                            Ok(val) => {
-                                web_sys::console::log_1(&"SSE palmetrics received".into());
-                                sig.set(val);
-                            }
-                            Err(err) => {
-                                web_sys::console::log_1(
-                                    &format!("SSE palmetrics parse error: {err}").into(),
-                                );
-                            }
+                        if let Ok(val) = serde_json::from_str::<PalMetrics>(&json) {
+                            sig.set(val);
                         }
                     }
                 }));
@@ -105,7 +112,7 @@ pub fn create_sse() -> SseData {
 
         // 4) palplayerlist
         {
-            let sig = pal_player_list;
+            let sig = ppl;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
                 Closure::wrap(Box::new(move |e: MessageEvent| {
                     if let Some(json) = e.data().as_string() {
@@ -121,7 +128,7 @@ pub fn create_sse() -> SseData {
 
         // 5) systemmetrics
         {
-            let sig = sys_metrics;
+            let sig = sm;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
                 Closure::wrap(Box::new(move |e: MessageEvent| {
                     if let Some(json) = e.data().as_string() {
@@ -137,7 +144,7 @@ pub fn create_sse() -> SseData {
 
         // 6) palguardprocess
         {
-            let sig = palguard_process;
+            let sig = pgp;
             let on_msg: Closure<dyn FnMut(MessageEvent)> =
                 Closure::wrap(Box::new(move |e: MessageEvent| {
                     if let Some(json) = e.data().as_string() {
@@ -153,7 +160,6 @@ pub fn create_sse() -> SseData {
             on_msg.forget();
         }
 
-        // 组件卸载时关闭连接
         on_cleanup(move || es.close());
     });
 

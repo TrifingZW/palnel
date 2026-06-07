@@ -6,6 +6,7 @@ pub mod circular_progress;
 pub mod data_table;
 pub mod dialog;
 pub mod elevated_button;
+pub mod hint;
 pub mod icon_button;
 pub mod inline_stat;
 pub mod login_dialog;

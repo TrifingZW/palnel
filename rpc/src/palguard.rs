@@ -112,6 +112,44 @@ pub async fn palguard_force_stop() -> Result<(), ServerFnError> {
     Ok(())
 }
 
+/// 踢出指定玩家。
+#[server]
+pub async fn palguard_kick(user_id: String, message: String) -> Result<(), ServerFnError> {
+    #[cfg(feature = "ssr")]
+    {
+        let cfg = match pal_cfg() {
+            Ok(c) => c,
+            Err(e) => return Err(e),
+        };
+        match services::pal_rest::kick_player(&cfg.0, cfg.1, &cfg.2, &cfg.3, &user_id, &message)
+            .await
+        {
+            Some(()) => {}
+            None => return Err(ServerFnError::ServerError("踢出玩家失败".to_string())),
+        }
+    }
+    Ok(())
+}
+
+/// 封禁指定玩家。
+#[server]
+pub async fn palguard_ban(user_id: String, message: String) -> Result<(), ServerFnError> {
+    #[cfg(feature = "ssr")]
+    {
+        let cfg = match pal_cfg() {
+            Ok(c) => c,
+            Err(e) => return Err(e),
+        };
+        match services::pal_rest::ban_player(&cfg.0, cfg.1, &cfg.2, &cfg.3, &user_id, &message)
+            .await
+        {
+            Some(()) => {}
+            None => return Err(ServerFnError::ServerError("封禁玩家失败".to_string())),
+        }
+    }
+    Ok(())
+}
+
 /// 提取 Palworld REST API 配置，返回 (ip, port, user, pass)。
 #[cfg(feature = "ssr")]
 fn pal_cfg() -> Result<(String, u16, String, String), ServerFnError> {

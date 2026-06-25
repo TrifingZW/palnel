@@ -198,7 +198,6 @@ pub fn PalWorldView(
                             <Tag text=info.version.clone() size=TagSize::Small color=TagColor::Purple icon=version_icon() />
                             <Tag text=info.world_guid[..8.min(info.world_guid.len())].to_string() size=TagSize::Small color=TagColor::Teal icon=globe_icon() />
                         </div>
-                        <p class="palbar__desc">{info.description.clone()}</p>
                     }
                 }}
             </Card>

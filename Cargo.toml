@@ -9,12 +9,12 @@ edition = "2024"
 
 [workspace.dependencies]
 # Leptos 核心
-leptos = { version = "0.8.19" }
+leptos = { version = "0.8.20" }
 leptos_meta = { version = "0.8.6" }
-leptos_router = { version = "0.8.13" }
-leptos_axum = { version = "0.8.9" }
+leptos_router = { version = "0.8.14" }
+leptos_axum = { version = "0.8.10" }
 leptos-use = "0.19.0"
-server_fn = { version = "0.8.12", features = ["multipart"] }
+server_fn = { version = "0.8.13", features = ["multipart"] }
 
 # Axum 和服务器
 axum = { version = "0.8.9", features = ["macros"] }
@@ -61,13 +61,13 @@ reqwest = { version = "0.13", features = ["json"] }
 toml = "1.1.2"
 
 # Error
-anyhow = "1.0.102"
+anyhow = "1.0.103"
 thiserror = "2.0.18"
 
 # 其他工具
-time = { version = "0.3.51", features = ["macros", "local-offset", "formatting"] }
+time = { version = "0.3.53", features = ["macros", "local-offset", "formatting"] }
 uuid = { version = "1.23.4", features = ["serde", "v4", "js"] }
-sysinfo = "0.39.5"
+sysinfo = "0.39.6"
 zip = "8.6.0"
 walkdir = "2.5.0"
 
